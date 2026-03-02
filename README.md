@@ -1,6 +1,6 @@
 # Koi Box
 
-Koi Box is a desktop radio that generates its own music. Powered by ACE-Step, it creates an endless stream of lo-fi, synthwave, and city pop tracks on the fly — no streaming service, no library to curate. Tune to a genre, and it fills your buffer with original songs, complete with (for city pop) lyrics written by a local language model. Choose a genre and settle in to endless tunes, or turn on autopilot mode which reads the time of day and weather to pick the right vibe automatically.
+Koi Box is a desktop radio that generates its own music. Powered by [ACE Step 1.5](https://github.com/ace-step/ACE-Step-1.5), it creates an endless stream of lo-fi, synthwave, and city pop tracks on the fly — no streaming service, no library to curate. Tune to a genre, and it fills your buffer with original songs, complete with (for city pop) lyrics written by a local language model. Choose a genre and settle in to endless tunes, or turn on autopilot mode which reads the time of day and weather to pick the right vibe automatically.
 
 <p align="center">
   <img src="docs/images/screenshot.png">
