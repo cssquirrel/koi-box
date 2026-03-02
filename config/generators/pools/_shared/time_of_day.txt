@@ -1,0 +1,17 @@
+dawn
+daybreak
+sunrise
+morning
+midday
+afternoon
+dusk
+twilight
+evening
+sunset
+nightfall
+midnight
+late night
+golden hour
+blue hour
+early hours
+small hours

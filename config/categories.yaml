@@ -1,0 +1,43 @@
+# Category definitions — display metadata, generator type, and lyrics engine config.
+# This is the source of truth for category-level settings.
+# Edit here or via the Settings panel (which writes back to this file).
+
+categories:
+  citypop:
+    display_name: City Pop
+    genre_selector_color: "C47832"
+    oled_color: "ff5b1a"
+    album_cover_directory: citypop
+    generator: custom
+    lyrics_engine: llm
+    lyrics_config:
+      system_prompt_file: citypop_lyrics.txt
+      language: japanese
+      morae_min: 4
+      morae_max: 14
+      max_chars: 25
+      placeholder_lyrics:
+        - ああ夜が来る
+        - 風が呼んでる
+        - 夢の続きを
+        - 光の中へ
+        - このまま二人
+        - 街が眠る頃
+        - 遠い記憶に
+        - 瞳を閉じて
+
+  lofi:
+    display_name: Lo-Fi
+    genre_selector_color: "6B8F7A"
+    oled_color: "4EDB8A"
+    album_cover_directory: lofi
+    generator: custom
+    lyrics_engine: none
+
+  synthwave:
+    display_name: Synthwave
+    genre_selector_color: "C45B6E"
+    oled_color: "FF4D8D"
+    album_cover_directory: synthwave
+    generator: custom
+    lyrics_engine: none

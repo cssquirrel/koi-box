@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>koibokksu radio</title>
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/x-icon" href="/icon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+JP:wght@900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="device">
+      <div class="screw tl"></div>
+      <div class="screw tr"></div>
+      <div class="screw bl"></div>
+      <div class="screw br"></div>
+
+      <!-- TOP BAR -->
+      <div class="top-bar" id="topBar">
+        <div class="brand">
+          <span class="brand-jp">&#x9BC9;&#x7BB1;</span>
+          <div class="brand-sep"></div>
+          <span class="brand-name">koi box</span>
+        </div>
+        <div class="top-controls" id="topControls">
+          <div class="preset-group" id="presetGroup"></div>
+          <!-- Sun arc + weather -->
+          <div class="sun-arc-wrap" id="sunArc">
+            <div class="sun-arc-ring"></div>
+            <div class="sun-arc-dot" id="sunDot"></div>
+          </div>
+          <div class="weather-chip" id="weatherChip">
+            <span class="weather-icon">&#9729;</span>
+            <span id="weatherTemp"></span>
+          </div>
+          <button class="amb-btn" id="ambBtn">
+            <span style="font-size: 11px; line-height: 1; opacity: 0.6"
+              >&#8779;</span
+            >
+            AMB
+          </button>
+          <button class="lib-btn" id="libBtn" title="Library Mode">LIB</button>
+          <button class="auto-btn" id="autoBtn" title="Auto-Pilot">
+            &#10022;
+          </button>
+          <div class="window-controls">
+            <button
+              class="win-ctrl win-ctrl-min"
+              id="winMinBtn"
+              title="Minimize"
+            >
+              <svg viewBox="0 0 10 10" fill="none">
+                <path
+                  d="M2 5H8"
+                  stroke="currentColor"
+                  stroke-width="1.3"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+            <button
+              class="win-ctrl win-ctrl-close"
+              id="winCloseBtn"
+              title="Close"
+            >
+              <svg viewBox="0 0 10 10" fill="none">
+                <path
+                  d="M2 2L8 8M8 2L2 8"
+                  stroke="currentColor"
+                  stroke-width="1.3"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN BODY -->
+      <div class="main-body">
+        <!-- Speaker Panel -->
+        <div class="speaker-panel">
+          <div class="speaker-grille">
+            <div class="speaker-grille-dots"></div>
+            <div class="speaker-grille-ring"></div>
+            <div class="speaker-grille-center"></div>
+          </div>
+
+          <div class="power-led">
+            <div class="led-dot off" id="powerLed"></div>
+            <span class="led-label">POWER</span>
+          </div>
+
+          <!-- Volume Knob -->
+          <div class="knob-section">
+            <span class="knob-label">VOL</span>
+            <div class="knob-wrap" id="knobWrap">
+              <div class="knob-ring"></div>
+              <div class="knob" id="knob">
+                <div class="knob-indicator" id="knobIndicator"></div>
+              </div>
+              <span class="knob-min">MIN</span>
+              <span class="knob-max">MAX</span>
+            </div>
+          </div>
+
+          <!-- Mute + Volume Meter -->
+          <div class="volume-section">
+            <button class="mute-btn" id="muteBtn" title="Mute">
+              <svg viewBox="0 0 16 14" fill="none">
+                <path d="M1 5V9H4L8 12V2L4 5H1Z" fill="currentColor" />
+                <path
+                  id="muteCross"
+                  d="M11 5L15 9M15 5L11 9"
+                  stroke="currentColor"
+                  stroke-width="1"
+                  stroke-linecap="round"
+                  style="display: none"
+                />
+                <path
+                  id="muteWave1"
+                  d="M11 5.5C11.8 6.3 11.8 7.7 11 8.5"
+                  stroke="currentColor"
+                  stroke-width="1"
+                  stroke-linecap="round"
+                />
+                <path
+                  id="muteWave2"
+                  d="M13 3.5C14.5 5 14.5 9 13 10.5"
+                  stroke="currentColor"
+                  stroke-width="1"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+            <div class="vol-meter" id="volMeter">
+              <span class="vol-meter-label">VOL</span>
+              <div class="vol-meter-ticks" id="volMeterTicks"></div>
+              <div class="vol-meter-needle" id="volNeedle"></div>
+              <span class="vol-meter-pct" id="volumePct"
+                >75<span class="pct-sign">%</span></span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls Panel -->
+        <div class="controls-panel">
+          <!-- RADIO VIEW -->
+          <div class="view active" id="radioView">
+            <!-- Category Switch -->
+            <div class="category-switch" id="categorySwitch"></div>
+            <!-- Band Tuner -->
+            <div class="band-tuner" id="bandTuner">
+              <div class="band-window" id="bandWindow"></div>
+              <div class="band-needle" id="bandNeedle"></div>
+              <div class="band-genres" id="bandGenres"></div>
+            </div>
+            <!-- OLED Screen -->
+            <div class="screen" id="screen">
+              <div class="screen-scanline"></div>
+              <div class="screen-tuning" id="tuningOverlay">
+                <span class="tuning-text" id="tuningText">TUNING</span>
+                <div class="tuning-bar-track">
+                  <div class="tuning-bar-fill" id="tuningFill"></div>
+                </div>
+                <span class="tuning-signal" id="tuningSignal">SIGNAL 0%</span>
+              </div>
+              <div
+                class="screen-tuning"
+                id="noSignalOverlay"
+                style="background: rgba(10, 10, 10, 0.92)"
+              >
+                <span
+                  class="tuning-text"
+                  style="
+                    color: var(--screen-muted);
+                    font-size: 11px;
+                    letter-spacing: 2px;
+                  "
+                  >NO SIGNAL</span
+                >
+                <span class="tuning-signal" style="margin-top: 6px"
+                  >Waiting for ACE-Step connection...</span
+                >
+              </div>
+              <div id="screenContent">
+                <div class="screen-layout">
+                  <div class="screen-album-art" id="screenAlbumArt">
+                    <img id="screenAlbumImg" alt="" />
+                  </div>
+                  <div class="screen-right">
+                    <div class="screen-top">
+                      <span class="screen-genre" id="screenGenre">---</span>
+                      <div class="screen-status">
+                        <div class="signal-dots" id="signalDots">
+                          <div class="signal-dot" style="height: 4px"></div>
+                          <div class="signal-dot" style="height: 7px"></div>
+                          <div class="signal-dot" style="height: 10px"></div>
+                          <div class="signal-dot" style="height: 13px"></div>
+                          <div class="signal-dot" style="height: 16px"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="screen-track">
+                      <div class="screen-title" id="trackTitle">---</div>
+                      <div class="screen-artist" id="trackArtist">---</div>
+                    </div>
+                    <div class="screen-progress">
+                      <div class="progress-bar" id="radioProgressBar">
+                        <div
+                          class="progress-fill"
+                          id="progressFill"
+                          style="width: 0%"
+                        ></div>
+                        <div class="waveform" id="waveform"></div>
+                      </div>
+                      <span class="progress-time" id="progressTime"
+                        >0:00 / 0:00</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Transport -->
+            <div class="transport-row">
+              <button
+                class="hw-key hw-key-dark hw-key-sq radio-hide"
+                id="shuffleBtn"
+                title="Shuffle"
+              >
+                <svg viewBox="0 0 32 32" fill="none">
+                  <path
+                    d="M23.73 5.653c-.44-.326-1.063-.011-1.063.536v1.678a.133.133 0 01-.134.133h-1.2c-2.71 0-5.106 1.348-6.553 3.411a.133.133 0 01-.226 0C13.107 9.348 10.71 8 8 8H6a.667.667 0 00-.667.667v1.733c0 .368.299.666.667.666h2c2.724 0 4.934 2.209 4.934 4.934s-2.21 4.934-4.934 4.934H6a.667.667 0 00-.667.666v1.734c0 .368.299.666.667.666h2c2.71 0 5.107-1.348 6.554-3.41a.133.133 0 01.226 0C16.227 22.651 18.623 24 21.333 24h1.2c.074 0 .134.06.134.133v1.678c0 .547.622.862 1.063.536l4.527-3.345a.667.667 0 000-1.072l-4.527-3.345c-.44-.325-1.063-.011-1.063.536v1.679a.133.133 0 01-.134.134h-1.2c-2.724 0-4.933-2.209-4.933-4.934s2.21-4.934 4.934-4.934h1.2c.073 0 .133.06.133.134v1.679c0 .547.623.861 1.063.536l4.527-3.346a.667.667 0 000-1.072L23.73 5.653z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+              <button
+                class="hw-key hw-key-dark hw-key-sq radio-hide"
+                id="loopBtn"
+                title="Repeat"
+              >
+                <svg viewBox="0 0 32 32" fill="none">
+                  <path
+                    d="M22.197 4.988c-.44-.325-1.063-.01-1.063.537v1.678c0 .073-.06.133-.133.133h-9.867A5.333 5.333 0 005.8 12.67v2c0 .368.3.666.668.666h1.733c.368 0 .667-.298.667-.666v-1.6a2.667 2.667 0 012.667-2.667h9.467c.073 0 .133.06.133.133v1.68c0 .547.623.861 1.063.536l4.527-3.346a.667.667 0 000-1.072l-4.527-3.345z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M10.865 24.798c0-.074.06-.134.134-.134h9.866a5.333 5.333 0 005.334-5.333v-2a.667.667 0 00-.667-.667h-1.734a.667.667 0 00-.666.667v1.6a2.667 2.667 0 01-2.667 2.667h-9.467a.133.133 0 01-.133-.134v-1.679c0-.547-.623-.861-1.063-.536l-4.527 3.345a.667.667 0 000 1.073l4.527 3.345c.44.325 1.063.011 1.063-.536v-1.678z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+              <div class="transport-sep radio-hide"></div>
+              <button
+                class="hw-key hw-key-ghost hw-key-sq radio-hide"
+                id="skipBackBtn"
+                title="Previous"
+              >
+                <svg viewBox="0 0 32 32" fill="none">
+                  <path
+                    d="M25.138 6.785c.44-.325 1.062-.01 1.062.537v18.357c0 .547-.622.861-1.062.536L13.392 16.536a.667.667 0 010-1.073l11.746-8.678z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M8 6.667c.368 0 .667.298.667.666v17.334c0 .368-.3.666-.667.666H6a.667.667 0 01-.667-.666V7.333c0-.368.299-.666.667-.666h2z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+              <button
+                class="hw-key hw-key-accent hw-key-play"
+                id="playBtn"
+                title="Play / Pause"
+              >
+                <span id="playIcon"
+                  ><svg class="play-icon-svg" viewBox="0 0 32 32" fill="none">
+                    <path
+                      d="M10.667 6.655c0-.547.622-.861 1.062-.536l12.648 9.345c.36.266.36.806 0 1.072L11.73 25.881c-.44.325-1.063.011-1.063-.536V6.655z"
+                      fill="currentColor"
+                    /></svg
+                ></span>
+              </button>
+              <button
+                class="hw-key hw-key-ghost hw-key-sq"
+                id="skipFwdBtn"
+                title="Next"
+              >
+                <svg viewBox="0 0 32 32" fill="none">
+                  <path
+                    d="M6.396 6.785c-.44-.325-1.063-.01-1.063.537v17.357c0 .547.623.861 1.063.536L18.142 16.536a.667.667 0 000-1.073L6.396 6.785z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M23.534 6.667c-.368 0-.667.298-.667.666v17.334c0 .368.299.666.667.666h2c.368 0 .666-.298.666-.666V7.333a.667.667 0 00-.666-.666h-2z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+              <div class="transport-sep"></div>
+              <button
+                class="hw-key hw-key-ghost hw-key-sq thumbs-down"
+                id="thumbsDownBtn"
+                title="Dislike"
+              >
+                <span class="emoji">&#128078;</span>
+              </button>
+              <button
+                class="hw-key hw-key-ghost hw-key-sq thumbs-up"
+                id="thumbsUpBtn"
+                title="Like"
+              >
+                <span class="emoji">&#128077;</span>
+              </button>
+              <div class="transport-sep"></div>
+              <button
+                class="hw-key hw-key-ghost hw-key-wide"
+                id="addToPlaylistBtn"
+                title="Add to playlist"
+              >
+                <svg
+                  viewBox="0 0 16 14"
+                  fill="none"
+                  style="width: 12px; height: 12px"
+                >
+                  <path
+                    d="M1 2H11M1 6H9M1 10H7"
+                    stroke="currentColor"
+                    stroke-width="1.3"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M12 8V14M9 11H15"
+                    stroke="currentColor"
+                    stroke-width="1.3"
+                    stroke-linecap="round"
+                  /></svg
+                ><span style="font-size: 8px; letter-spacing: 0.5px">ADD</span>
+              </button>
+            </div>
+            <!-- Last Track -->
+            <div class="last-track" id="lastTrack">
+              <div class="last-track-bg"></div>
+              <div class="last-track-scanlines"></div>
+              <span class="last-track-label">LAST</span>
+              <span class="last-track-title" id="lastTrackTitle">--</span>
+              <div class="last-track-actions">
+                <button class="last-track-react" id="lastTrackLike">
+                  &#128077;
+                </button>
+                <button class="last-track-react" id="lastTrackDislike">
+                  &#128078;
+                </button>
+              </div>
+              <button class="last-track-replay" id="lastTrackReplay">
+                &#9664;&#9664;
+              </button>
+              <span class="last-track-timer" id="lastTrackTimer"></span>
+              <div class="last-track-sep"></div>
+              <div class="last-track-buf">
+                <span class="last-track-buf-label">BUF</span>
+                <span class="last-track-buf-count" id="lastTrackBufCount"
+                  >0</span
+                >
+              </div>
+            </div>
+            <!-- Playlist picker overlay (radio ADD) -->
+            <div class="playlist-picker-overlay" id="playlistPicker">
+              <div class="playlist-picker-header">
+                <span class="track-picker-title">ADD TO PLAYLIST</span>
+                <button class="track-picker-close" id="playlistPickerClose">
+                  &times;
+                </button>
+              </div>
+              <div
+                class="playlist-picker-scroll"
+                id="playlistPickerScroll"
+              ></div>
+            </div>
+          </div>
+
+          <!-- PLAYER VIEW -->
+          <div class="view" id="playerView">
+            <div class="screen" id="playerScreen">
+              <div class="screen-scanline"></div>
+              <div id="playerScreenContent">
+                <div class="screen-layout">
+                  <div class="screen-album-art" id="playerAlbumArt">
+                    <img id="playerAlbumImg" alt="" />
+                  </div>
+                  <div class="screen-right">
+                    <div class="screen-top">
+                      <span class="screen-genre" id="playerGenreLabel"
+                        >PLAYLIST</span
+                      >
+                      <div class="screen-status">
+                        <span
+                          style="
+                            font-family: var(--font-mono);
+                            font-size: 9px;
+                            color: var(--screen-muted);
+                          "
+                          id="playerCounter"
+                          >0 / 0</span
+                        >
+                      </div>
+                    </div>
+                    <div class="screen-track">
+                      <div class="screen-title" id="playerTrackTitle">---</div>
+                      <div class="screen-artist" id="playerTrackArtist">
+                        ---
+                      </div>
+                      <div class="screen-album" id="playerTrackAlbum"></div>
+                    </div>
+                    <div class="screen-progress">
+                      <div class="progress-bar" id="playerProgressBar">
+                        <div
+                          class="progress-fill"
+                          id="playerProgressFill"
+                          style="width: 0%"
+                        ></div>
+                        <div class="waveform" id="playerWaveform"></div>
+                      </div>
+                      <span class="progress-time" id="playerProgressTime"
+                        >0:00 / 0:00</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Tracklist -->
+            <div style="position: relative">
+              <div class="section-label">
+                <span>TRACKLIST</span
+                ><span class="section-count" id="tracklistMeta"></span>
+              </div>
+              <div class="tracklist-wrapper" id="tracklist"></div>
+              <!-- Track picker overlay -->
+              <div class="track-picker" id="trackPicker">
+                <div class="track-picker-header">
+                  <span class="track-picker-title">ADD TRACK</span>
+                  <button class="track-picker-close" id="trackPickerClose">
+                    &times;
+                  </button>
+                </div>
+                <div class="track-picker-scroll" id="trackPickerScroll"></div>
+              </div>
+              <!-- Playlist picker overlay (per-track add-to-playlist) -->
+              <div class="playlist-picker-overlay" id="playerPlaylistPicker">
+                <div class="playlist-picker-header">
+                  <span class="track-picker-title">ADD TO PLAYLIST</span>
+                  <button
+                    class="track-picker-close"
+                    id="playerPlaylistPickerClose"
+                  >
+                    &times;
+                  </button>
+                </div>
+                <div
+                  class="playlist-picker-scroll"
+                  id="playerPlaylistPickerScroll"
+                ></div>
+              </div>
+            </div>
+            <!-- Delete confirmation modal -->
+            <div class="delete-confirm-modal" id="deleteConfirmModal">
+              <div class="delete-confirm-inner">
+                <div class="delete-confirm-title">REMOVE TRACK</div>
+                <div class="delete-confirm-text" id="deleteConfirmText"></div>
+                <div class="delete-confirm-actions">
+                  <button class="new-playlist-btn" id="deleteConfirmCancel">
+                    CANCEL
+                  </button>
+                  <button
+                    class="new-playlist-btn delete-confirm-remove"
+                    id="deleteConfirmOk"
+                  >
+                    REMOVE
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Transport -->
+            <div class="transport-row">
+              <button
+                class="hw-key hw-key-dark hw-key-sq"
+                id="plShuffleBtn"
+                title="Shuffle"
+              >
+                <svg viewBox="0 0 32 32" fill="none">
+                  <path
+                    d="M23.73 5.653c-.44-.326-1.063-.011-1.063.536v1.678a.133.133 0 01-.134.133h-1.2c-2.71 0-5.106 1.348-6.553 3.411a.133.133 0 01-.226 0C13.107 9.348 10.71 8 8 8H6a.667.667 0 00-.667.667v1.733c0 .368.299.666.667.666h2c2.724 0 4.934 2.209 4.934 4.934s-2.21 4.934-4.934 4.934H6a.667.667 0 00-.667.666v1.734c0 .368.299.666.667.666h2c2.71 0 5.107-1.348 6.554-3.41a.133.133 0 01.226 0C16.227 22.651 18.623 24 21.333 24h1.2c.074 0 .134.06.134.133v1.678c0 .547.622.862 1.063.536l4.527-3.345a.667.667 0 000-1.072l-4.527-3.345c-.44-.325-1.063-.011-1.063.536v1.679a.133.133 0 01-.134.134h-1.2c-2.724 0-4.933-2.209-4.933-4.934s2.21-4.934 4.934-4.934h1.2c.073 0 .133.06.133.134v1.679c0 .547.623.861 1.063.536l4.527-3.346a.667.667 0 000-1.072L23.73 5.653z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+              <button
+                class="hw-key hw-key-dark hw-key-sq"
+                id="plLoopBtn"
+                title="Repeat"
+              >
+                <svg viewBox="0 0 32 32" fill="none">
+                  <path
+                    d="M22.197 4.988c-.44-.325-1.063-.01-1.063.537v1.678c0 .073-.06.133-.133.133h-9.867A5.333 5.333 0 005.8 12.67v2c0 .368.3.666.668.666h1.733c.368 0 .667-.298.667-.666v-1.6a2.667 2.667 0 012.667-2.667h9.467c.073 0 .133.06.133.133v1.68c0 .547.623.861 1.063.536l4.527-3.346a.667.667 0 000-1.072l-4.527-3.345z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M10.865 24.798c0-.074.06-.134.134-.134h9.866a5.333 5.333 0 005.334-5.333v-2a.667.667 0 00-.667-.667h-1.734a.667.667 0 00-.666.667v1.6a2.667 2.667 0 01-2.667 2.667h-9.467a.133.133 0 01-.133-.134v-1.679c0-.547-.623-.861-1.063-.536l-4.527 3.345a.667.667 0 000 1.073l4.527 3.345c.44.325 1.063.011 1.063-.536v-1.678z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+              <div class="transport-sep"></div>
+              <button
+                class="hw-key hw-key-ghost hw-key-sq"
+                id="plSkipBackBtn"
+                title="Previous"
+              >
+                <svg viewBox="0 0 32 32" fill="none">
+                  <path
+                    d="M25.138 6.785c.44-.325 1.062-.01 1.062.537v18.357c0 .547-.622.861-1.062.536L13.392 16.536a.667.667 0 010-1.073l11.746-8.678z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M8 6.667c.368 0 .667.298.667.666v17.334c0 .368-.3.666-.667.666H6a.667.667 0 01-.667-.666V7.333c0-.368.299-.666.667-.666h2z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+              <button
+                class="hw-key hw-key-accent hw-key-play"
+                id="plPlayBtn"
+                title="Play / Pause"
+              >
+                <span id="plPlayIcon"
+                  ><svg class="play-icon-svg" viewBox="0 0 32 32" fill="none">
+                    <path
+                      d="M10.667 6.655c0-.547.622-.861 1.062-.536l12.648 9.345c.36.266.36.806 0 1.072L11.73 25.881c-.44.325-1.063.011-1.063-.536V6.655z"
+                      fill="currentColor"
+                    /></svg
+                ></span>
+              </button>
+              <button
+                class="hw-key hw-key-ghost hw-key-sq"
+                id="plSkipFwdBtn"
+                title="Next"
+              >
+                <svg viewBox="0 0 32 32" fill="none">
+                  <path
+                    d="M6.396 6.785c-.44-.325-1.063-.01-1.063.537v17.357c0 .547.623.861 1.063.536L18.142 16.536a.667.667 0 000-1.073L6.396 6.785z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M23.534 6.667c-.368 0-.667.298-.667.666v17.334c0 .368.299.666.667.666h2c.368 0 .666-.298.666-.666V7.333a.667.667 0 00-.666-.666h-2z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- SETTINGS VIEW -->
+          <div class="view" id="settingsView">
+            <div class="settings-scroll" id="settingsScroll"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLAYLIST DRAWER -->
+      <div class="drawer" id="drawer">
+        <div class="drawer-inner">
+          <div class="drawer-header">
+            <span class="drawer-title">YOUR PLAYLISTS</span>
+            <button
+              class="bar-btn"
+              id="newPlaylistBtn"
+              style="
+                height: 22px;
+                padding: 0 8px;
+                font-size: 8px;
+                color: var(--fg-dim);
+              "
+            >
+              <span style="font-size: 12px; line-height: 1">+</span> NEW
+            </button>
+          </div>
+          <div class="drawer-scroll" id="drawerScroll"></div>
+        </div>
+
+        <!-- New Playlist modal -->
+        <div class="new-playlist-modal" id="newPlaylistModal">
+          <div class="new-playlist-header">
+            <span class="new-playlist-title">NEW PLAYLIST</span>
+            <button class="track-picker-close" id="newPlaylistCancel">
+              &times;
+            </button>
+          </div>
+          <div class="new-playlist-body">
+            <input
+              type="text"
+              class="new-playlist-input"
+              id="newPlaylistInput"
+              placeholder="Playlist name"
+              maxlength="60"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <div class="new-playlist-actions">
+              <button class="new-playlist-btn" id="newPlaylistCancelBtn">
+                CANCEL
+              </button>
+              <button
+                class="new-playlist-btn new-playlist-create"
+                id="newPlaylistCreateBtn"
+              >
+                CREATE
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delete Playlist confirmation modal -->
+        <div class="delete-confirm-modal" id="deletePlaylistModal">
+          <div class="delete-confirm-inner">
+            <div class="delete-confirm-title">DELETE PLAYLIST</div>
+            <div class="delete-confirm-text" id="deletePlaylistText"></div>
+            <div class="delete-confirm-actions">
+              <button class="new-playlist-btn" id="deletePlaylistCancel">
+                CANCEL
+              </button>
+              <button
+                class="new-playlist-btn delete-confirm-remove"
+                id="deletePlaylistOk"
+              >
+                DELETE
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM BAR -->
+      <div class="bottom-bar">
+        <div class="status-left">
+          <div class="status-dot" id="statusDot"></div>
+          <span id="statusText">RADIO</span>
+          <span class="status-mode-dim" id="statusExtra"></span>
+        </div>
+        <div class="bottom-actions" id="bottomActions">
+          <button
+            class="bar-btn bar-btn-accent"
+            id="radioReturnBtn"
+            style="display: none"
+            title="Return to radio"
+          >
+            <span style="font-size: 11px">&#9664;</span> RADIO
+          </button>
+          <button class="bar-btn" id="playlistsBtn">
+            PLAYLISTS <span class="arrow">&#8599;</span>
+          </button>
+          <button
+            class="bar-btn bar-btn-icon"
+            id="settingsBtn"
+            title="Settings"
+          >
+            <svg viewBox="0 0 16 16" fill="none">
+              <circle
+                cx="8"
+                cy="8"
+                r="2.5"
+                stroke="currentColor"
+                stroke-width="1.3"
+              />
+              <path
+                d="M8 1V3M8 13V15M1 8H3M13 8H15M2.93 2.93L4.34 4.34M11.66 11.66L13.07 13.07M13.07 2.93L11.66 4.34M4.34 11.66L2.93 13.07"
+                stroke="currentColor"
+                stroke-width="1.3"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audio element for playback -->
+    <audio id="audioPlayer" preload="auto"></audio>
+
+    <script type="module" src="/js/app.js"></script>
+  </body>
+</html>

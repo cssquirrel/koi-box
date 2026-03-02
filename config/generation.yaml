@@ -1,0 +1,15 @@
+api_url: http://127.0.0.1:8001
+api_key: # optional api key here
+delete_disliked_tracks: true
+preservation_time: 24
+file_size_limit_mb: 500
+lm:
+  thinking: true
+  use_cot_caption: true
+  use_cot_language: true
+  constrained_decoding: true
+  lm_cfg_scale: 2.0
+output:
+  use_format: true
+  inference_steps: 8
+  audio_format: mp3

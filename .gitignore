@@ -205,3 +205,19 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+.agents/
+.claude/
+venv/
+downloads/
+inspiration/
+prototype/
+
+CLAUDE.MD
+*.db
+*.db-shm
+*.db-wal
+skills-lock.json
+
+# Models
+models/

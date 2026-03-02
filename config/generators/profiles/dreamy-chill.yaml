@@ -1,0 +1,45 @@
+# Dreamy Chill — generic generator profile for ambient/downtempo categories.
+# Referenced by categories with generator: profile, generator_profile: dreamy-chill
+# Pool file paths resolve relative to pools/{category}/ then pools/_shared/.
+
+track_names:
+  templates:
+    - "{adj} {noun}"
+    - "{noun} {noun}"
+    - "{adj} {noun} {suffix}"
+    - "{time} {noun}"
+    - "{adj} {time}"
+    - "{noun}"
+    - "{prefix} {noun}"
+  pools:
+    adj: adjectives.txt
+    noun: nouns.txt
+    suffix: suffixes.txt
+    time: time_of_day.txt
+    prefix: prefixes.txt
+
+artist_names:
+  templates:
+    - "{prefix}{suffix}"
+    - "{word} {word2}"
+    - "{solo}"
+  feat_chance: 0.15
+  feat_templates:
+    - "{name} (feat. {feat})"
+  pools:
+    prefix: artist_prefixes.txt
+    suffix: artist_suffixes.txt
+    word: artist_words.txt
+    word2: artist_words.txt
+    solo: artist_solo.txt
+    feat: artist_feat.txt
+
+album_names:
+  templates:
+    - "{adj} {noun}"
+    - "{noun} {suffix}"
+    - "{adj} {noun} {suffix}"
+  pools:
+    adj: adjectives.txt
+    noun: album_nouns.txt
+    suffix: album_suffixes.txt

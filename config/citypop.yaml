@@ -1,0 +1,318 @@
+citypop-groove:
+  description: >
+    Funky groovy city pop with tight syncopated drums, slap bass,
+    Rhodes electric piano comping, horn stabs, and bright female
+    Japanese vocals. Tatsuro Yamashita and Anri energy. Warm,
+    danceable, polished 80s Japanese pop-funk.
+  prefix: citypop-groove
+  caption: >-
+    city pop, japanese pop, 80s, funk, groovy, danceable, warm,
+    polished, bright, female vocal, japanese vocal, Rhodes electric
+    piano, slap bass, syncopated drums, horn section, brass stabs,
+    synth pad, Yamaha DX7, high production value, catchy melody
+  dynamic_lyrics: true
+  lyrics: |
+    [Intro - funky Rhodes and bass groove]
+
+    [Verse 1]
+    {LYRICS_VERSE_1_LINE_1}
+    {LYRICS_VERSE_1_LINE_2}
+    {LYRICS_VERSE_1_LINE_3}
+    {LYRICS_VERSE_1_LINE_4}
+
+    [Pre-Chorus - building energy]
+    {LYRICS_PRECHORUS_1_LINE_1}
+    {LYRICS_PRECHORUS_1_LINE_2}
+
+    [Chorus - anthemic]
+    {LYRICS_CHORUS_LINE_1}
+    {LYRICS_CHORUS_LINE_2}
+    {LYRICS_CHORUS_LINE_3}
+    {LYRICS_CHORUS_LINE_4}
+
+    [Verse 2]
+    {LYRICS_VERSE_2_LINE_1}
+    {LYRICS_VERSE_2_LINE_2}
+    {LYRICS_VERSE_2_LINE_3}
+    {LYRICS_VERSE_2_LINE_4}
+
+    [Pre-Chorus - building energy]
+    {LYRICS_PRECHORUS_2_LINE_1}
+    {LYRICS_PRECHORUS_2_LINE_2}
+
+    [Chorus - anthemic]
+    {LYRICS_CHORUS_LINE_1}
+    {LYRICS_CHORUS_LINE_2}
+    {LYRICS_CHORUS_LINE_3}
+    {LYRICS_CHORUS_LINE_4}
+
+    [Bridge - Rhodes solo, softer]
+
+    [Chorus - anthemic]
+    {LYRICS_CHORUS_LINE_1}
+    {LYRICS_CHORUS_LINE_2}
+    {LYRICS_CHORUS_LINE_3}
+    {LYRICS_CHORUS_LINE_4}
+
+    [Outro - groove fades]
+  bpm_min: 108
+  bpm_max: 122
+  key_scale: G Major
+  duration_min: 180
+  duration_max: 270
+  theme_seeds:
+    - 夜のダンスフロア
+    - ネオンの交差点
+    - 金曜の夜の約束
+    - 屋上のパーティー
+    - 鏡の中の君
+    - タクシーの中から見る街
+    - 真夜中のディスコ
+    - 赤いドレスの影
+    - カクテルグラスの向こう
+    - 六本木の雨上がり
+    - イヤリングが揺れる
+    - 地下のライブハウス
+    - ステレオから流れる音
+    - 高速道路の夜景
+    - ハイヒールの足音
+    - バーカウンターの横顔
+    - 週末だけの魔法
+    - 口紅の色を選ぶ夜
+    - 踊れない振りをして
+    - 信号待ちの目が合う
+
+citypop-breeze:
+  description: >
+    Breezy summer city pop with warm acoustic guitar, lush Rhodes
+    chords, gentle bass groove, soft drums, synth pads, and airy
+    female Japanese vocals. Light, nostalgic, AOR-influenced with
+    a seaside warmth.
+  prefix: citypop-breeze
+  caption: >-
+    city pop, japanese pop, 80s, AOR, breezy, warm, summer,
+    nostalgic, light, airy, female vocal, japanese vocal, acoustic
+    guitar, Rhodes electric piano, gentle bass, soft drums, synth
+    pad, lush, polished, mellow, catchy melody
+  dynamic_lyrics: true
+  lyrics: |
+    [Intro - gentle acoustic guitar and Rhodes]
+
+    [Verse 1]
+    {LYRICS_VERSE_1_LINE_1}
+    {LYRICS_VERSE_1_LINE_2}
+    {LYRICS_VERSE_1_LINE_3}
+    {LYRICS_VERSE_1_LINE_4}
+
+    [Chorus - warm and open]
+    {LYRICS_CHORUS_LINE_1}
+    {LYRICS_CHORUS_LINE_2}
+    {LYRICS_CHORUS_LINE_3}
+    {LYRICS_CHORUS_LINE_4}
+
+    [Verse 2]
+    {LYRICS_VERSE_2_LINE_1}
+    {LYRICS_VERSE_2_LINE_2}
+    {LYRICS_VERSE_2_LINE_3}
+    {LYRICS_VERSE_2_LINE_4}
+
+    [Chorus - warm and open]
+    {LYRICS_CHORUS_LINE_1}
+    {LYRICS_CHORUS_LINE_2}
+    {LYRICS_CHORUS_LINE_3}
+    {LYRICS_CHORUS_LINE_4}
+
+    [Bridge - synth pad and vocal, intimate]
+    {LYRICS_BRIDGE_LINE_1}
+    {LYRICS_BRIDGE_LINE_2}
+    {LYRICS_BRIDGE_LINE_3}
+
+    [Chorus - warm and open]
+    {LYRICS_CHORUS_LINE_1}
+    {LYRICS_CHORUS_LINE_2}
+    {LYRICS_CHORUS_LINE_3}
+    {LYRICS_CHORUS_LINE_4}
+
+    [Outro - acoustic guitar fades gently]
+  bpm_min: 96
+  bpm_max: 112
+  key_scale: F Major
+  duration_min: 180
+  duration_max: 270
+  theme_seeds:
+    - 真夏の海岸線
+    - 夕焼けのドライブ
+    - 白い砂浜の足跡
+    - 麦わら帽子の影
+    - 窓を開けた車
+    - 八月の最後の日
+    - 波打ち際の貝殻
+    - アイスクリームが溶ける
+    - 入道雲の下で
+    - 潮風とカセットテープ
+    - 日焼けした肩
+    - 海の見える駅
+    - 自転車で坂を下る
+    - レモンソーダの泡
+    - 花火の後の静けさ
+    - 白いカーテンが揺れる
+    - プールサイドの午後
+    - 絵葉書に書けない気持ち
+    - 朝の港の匂い
+    - 夏休みの最初の朝
+
+citypop-night:
+  description: >
+    Mellow nighttime city pop with smooth Rhodes chords, gentle
+    fingerstyle bass, restrained brushed drums, warm synth pads,
+    and intimate female Japanese vocals. Sophisticated, romantic,
+    late-night mood with jazz-inflected harmony.
+  prefix: citypop-night
+  caption: >-
+    city pop, japanese pop, 80s, mellow, smooth, romantic,
+    intimate, sophisticated, nocturnal, female vocal, japanese
+    vocal, Rhodes electric piano, fingerstyle bass, brushed drums,
+    warm synth pad, jazz-inflected, lush chords, polished,
+    gentle melody
+  dynamic_lyrics: true
+  lyrics: |
+    [Intro - soft Rhodes chords, bass enters gently]
+
+    [Verse 1]
+    {LYRICS_VERSE_1_LINE_1}
+    {LYRICS_VERSE_1_LINE_2}
+    {LYRICS_VERSE_1_LINE_3}
+    {LYRICS_VERSE_1_LINE_4}
+
+    [Chorus - emotional, open]
+    {LYRICS_CHORUS_LINE_1}
+    {LYRICS_CHORUS_LINE_2}
+    {LYRICS_CHORUS_LINE_3}
+    {LYRICS_CHORUS_LINE_4}
+
+    [Verse 2]
+    {LYRICS_VERSE_2_LINE_1}
+    {LYRICS_VERSE_2_LINE_2}
+    {LYRICS_VERSE_2_LINE_3}
+    {LYRICS_VERSE_2_LINE_4}
+
+    [Chorus - emotional, open]
+    {LYRICS_CHORUS_LINE_1}
+    {LYRICS_CHORUS_LINE_2}
+    {LYRICS_CHORUS_LINE_3}
+    {LYRICS_CHORUS_LINE_4}
+
+    [Bridge - whispered, Rhodes only]
+    {LYRICS_BRIDGE_LINE_1}
+    {LYRICS_BRIDGE_LINE_2}
+
+    [Chorus - emotional, open]
+    {LYRICS_CHORUS_LINE_1}
+    {LYRICS_CHORUS_LINE_2}
+    {LYRICS_CHORUS_LINE_3}
+    {LYRICS_CHORUS_LINE_4}
+
+    [Outro - Rhodes fades to silence]
+  bpm_min: 88
+  bpm_max: 104
+  key_scale: Bb Major
+  duration_min: 180
+  duration_max: 270
+  theme_seeds:
+    - 午前三時の電話
+    - 雨の窓辺
+    - 最終電車を見送る
+    - 空になったグラス
+    - 読みかけの手紙
+    - タバコの煙の向こう
+    - 月明かりの部屋
+    - 留守電のあなたの声
+    - カフェの隅の席
+    - 雨上がりの屋上
+    - 消せない番号
+    - 二人分のカップ
+    - 窓に映る街灯
+    - ジャズが流れる店
+    - 言えなかった一言
+    - 夜行バスの窓
+    - 帰り道の沈黙
+    - 写真の中の笑顔
+    - 枕元のラジオ
+    - 同じ月を見てる
+
+citypop-fusion:
+  description: >
+    Energetic jazz-fusion city pop with technical electric piano
+    runs, punchy slap bass, tight complex drums, bright synth
+    lead, and Japanese vocals. Casiopea and T-Square influenced,
+    upbeat and musically adventurous.
+  prefix: citypop-fusion
+  caption: >-
+    city pop, japanese pop, jazz fusion, 80s, energetic, bright,
+    technical, upbeat, complex, male vocal, japanese vocal, Rhodes
+    electric piano, electric piano, slap bass, tight drums, synth
+    lead, Yamaha DX7, brass section, horn stabs, polished,
+    high energy, catchy melody
+  dynamic_lyrics: true
+  lyrics: |
+    [Intro - electric piano run, drums kick in tight]
+
+    [Verse 1]
+    {LYRICS_VERSE_1_LINE_1}
+    {LYRICS_VERSE_1_LINE_2}
+    {LYRICS_VERSE_1_LINE_3}
+    {LYRICS_VERSE_1_LINE_4}
+
+    [Chorus - bright and catchy]
+    {LYRICS_CHORUS_LINE_1}
+    {LYRICS_CHORUS_LINE_2}
+    {LYRICS_CHORUS_LINE_3}
+    {LYRICS_CHORUS_LINE_4}
+
+    [Verse 2]
+    {LYRICS_VERSE_2_LINE_1}
+    {LYRICS_VERSE_2_LINE_2}
+    {LYRICS_VERSE_2_LINE_3}
+    {LYRICS_VERSE_2_LINE_4}
+
+    [Chorus - bright and catchy]
+    {LYRICS_CHORUS_LINE_1}
+    {LYRICS_CHORUS_LINE_2}
+    {LYRICS_CHORUS_LINE_3}
+    {LYRICS_CHORUS_LINE_4}
+
+    [Bridge - synth lead solo, high energy]
+
+    [Chorus - bright and catchy]
+    {LYRICS_CHORUS_LINE_1}
+    {LYRICS_CHORUS_LINE_2}
+    {LYRICS_CHORUS_LINE_3}
+    {LYRICS_CHORUS_LINE_4}
+
+    [Outro - tight groove, instruments drop out one by one]
+  bpm_min: 112
+  bpm_max: 130
+  key_scale: D Major
+  duration_min: 150
+  duration_max: 240
+  theme_seeds:
+    - 朝の高速道路
+    - 始発電車の朝
+    - ビルの隙間の青空
+    - 新しい街への引越し
+    - 風を切って走る
+    - 月曜の朝のコーヒー
+    - 屋上から見る日の出
+    - 自転車で風になる
+    - 空港の出発ロビー
+    - 橋を渡る瞬間
+    - 青信号を待たずに
+    - 初めての一人暮らし
+    - 春の転勤の日
+    - サングラスと朝日
+    - 地図にない道を行く
+    - 羽田の滑走路
+    - 夢の続きを走る
+    - 追い風の交差点
+    - 靴紐を結び直す朝
+    - 終わらない日曜日
