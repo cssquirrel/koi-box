@@ -221,4 +221,8 @@ skills-lock.json
 
 # Models
 models/
+
+# Local Stuff
 scripts/generate_icon.py
+docs/local_only/
+frontend.cmd
