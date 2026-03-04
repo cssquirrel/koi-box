@@ -673,6 +673,7 @@ function playTrack(track, autoplay = true) {
   currentTrack = track;
   hideOverlay();
   updateRadioScreen(track);
+  emit('track-started', { track });
   updateScreenGenre(track.genre_id);
   if (track.waveform) {
     initWaveform('waveform', track.waveform);

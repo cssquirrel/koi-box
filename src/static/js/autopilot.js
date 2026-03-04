@@ -193,10 +193,11 @@ function executeAutopilotSwitch(genre) {
 
   band.setMotorized(true);
 
-  // After the switch completes: clear motorized mode and pre-pick next genre
+  // After the switch completes: clear motorized mode.
+  // Pre-pick is handled by the track-started event (fires when
+  // the first track plays), giving the buffer worker lead time.
   document.addEventListener('genre-switched', () => {
     band.setMotorized(false);
-    schedulePrePick();
   }, { once: true });
 
   if (firstPick) {
@@ -288,9 +289,9 @@ export function onTrackEnd() {
 
   const current = band.getCurrentGenre();
   if (current && genre.id === current.id) {
-    // Same variant continues — let radio.js do normal advance
+    // Same variant continues — let radio.js do normal advance.
+    // Pre-pick is handled by the track-started event when the next track plays.
     lastVariantId = genre.id;
-    schedulePrePick();
     return false;
   }
 
@@ -316,6 +317,13 @@ export function initAutopilot() {
     lamp.innerHTML = '<div class="led-dot off"></div><span class="led-label">AP</span>';
     tuner.appendChild(lamp);
   }
+
+  // When a track starts playing, pre-pick the next genre and send
+  // the prebuffer hint.  This gives the buffer worker the full song
+  // duration to generate at least one track for the upcoming switch.
+  on('track-started', () => {
+    if (active) schedulePrePick();
+  });
 
   // Manual override: any user interaction with band controls disengages autopilot
   on('band:manual-interact', () => {
