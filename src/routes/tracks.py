@@ -1,11 +1,15 @@
 """Track endpoints: CRUD, favorites, dislikes, history."""
 
 import json
+import logging
+import re
 
 from fastapi import APIRouter, HTTPException
 
 from src.database import get_db
 from src.models import TrackOut, TrackStatusRequest
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["tracks"])
 
@@ -61,13 +65,109 @@ def update_track_status(track_id: int, req: TrackStatusRequest):
         raise HTTPException(status_code=400, detail="Invalid status")
 
     db = get_db()
-    row = db.execute("SELECT id FROM tracks WHERE id = ?", (track_id,)).fetchone()
-    if not row:
+    track = db.execute(
+        "SELECT id, artist, genre_id, album_id FROM tracks WHERE id = ?",
+        (track_id,),
+    ).fetchone()
+    if not track:
         raise HTTPException(status_code=404, detail="Track not found")
 
     db.execute("UPDATE tracks SET status = ? WHERE id = ?", (req.status, track_id))
     db.commit()
+
+    if req.status == "favorited":
+        _on_track_favorited(db, track)
+
     return {"ok": True, "track_id": track_id, "status": req.status}
+
+
+def _strip_feat(artist: str) -> str:
+    """Remove (feat. ...) suffix from artist name."""
+    return re.sub(r"\s*\(feat\..*?\)", "", artist, flags=re.IGNORECASE).strip()
+
+
+def _on_track_favorited(db, track):
+    """Handle side effects when a track is favorited: artist pool + album claim."""
+    base_artist = _strip_feat(track["artist"])
+    genre_id = track["genre_id"]
+    album_id = track["album_id"]
+
+    # Upsert into favorite_artists pool
+    db.execute(
+        """INSERT INTO favorite_artists (artist_name, genre_id, like_count)
+           VALUES (?, ?, 1)
+           ON CONFLICT(artist_name, genre_id)
+           DO UPDATE SET like_count = like_count + 1""",
+        (base_artist, genre_id),
+    )
+    db.commit()
+    logger.info("Favorite artist pool: %s +1 for %s", base_artist, genre_id)
+
+    # Claim album ownership if unclaimed
+    if not album_id:
+        return
+
+    album = db.execute(
+        "SELECT id, owner_artist, genre_id FROM albums WHERE id = ?",
+        (album_id,),
+    ).fetchone()
+    if not album:
+        return
+
+    if album["owner_artist"] == "":
+        _claim_album(db, album, base_artist)
+
+
+def _claim_album(db, album, owner_artist):
+    """Set the album's owner and reassign other artists' unfavorited tracks."""
+    album_id = album["id"]
+    genre_id = album["genre_id"]
+
+    db.execute(
+        "UPDATE albums SET owner_artist = ? WHERE id = ?",
+        (owner_artist, album_id),
+    )
+    db.commit()
+    logger.info("Album %d claimed by %s", album_id, owner_artist)
+
+    # Find unfavorited tracks by OTHER artists in this album
+    other_tracks = db.execute(
+        """SELECT id, artist FROM tracks
+           WHERE album_id = ? AND status != 'favorited'""",
+        (album_id,),
+    ).fetchall()
+
+    from src.services.albums import assign_track_to_album, increment_album_track_count
+
+    moved = 0
+    for t in other_tracks:
+        t_base = _strip_feat(t["artist"])
+        if t_base == owner_artist:
+            continue
+
+        # Assign to a different album
+        new_album = assign_track_to_album(genre_id, t_base)
+        if new_album["id"] == album_id:
+            continue  # couldn't find another album, skip
+
+        db.execute(
+            "UPDATE tracks SET album_id = ? WHERE id = ?",
+            (new_album["id"], t["id"]),
+        )
+        increment_album_track_count(new_album["id"])
+        moved += 1
+
+    if moved:
+        # Update original album's track count
+        actual = db.execute(
+            "SELECT COUNT(*) FROM tracks WHERE album_id = ?", (album_id,)
+        ).fetchone()[0]
+        db.execute(
+            "UPDATE albums SET track_count = ? WHERE id = ?",
+            (actual, album_id),
+        )
+        db.commit()
+        logger.info("Moved %d tracks out of album %d", moved, album_id)
 
 
 def _row_to_track(db, row) -> dict:

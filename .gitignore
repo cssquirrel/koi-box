@@ -223,6 +223,6 @@ skills-lock.json
 models/
 
 # Local Stuff
-scripts/generate_icon.py
+scripts/
 docs/local_only/
 frontend.cmd

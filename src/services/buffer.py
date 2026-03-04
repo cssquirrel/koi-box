@@ -557,8 +557,30 @@ def _generate_track_name(genre_id=None):
     return random.choice(fallback_names)
 
 
+FAVORITE_ARTIST_REUSE_CHANCE = 0.4  # 40% chance to reuse a liked artist
+
+
+def _get_favorite_artist_pool(genre_id):
+    """Return favorite artists for a variant as [(name, like_count), ...]."""
+    db = get_db()
+    rows = db.execute(
+        "SELECT artist_name, like_count FROM favorite_artists WHERE genre_id = ?",
+        (genre_id,),
+    ).fetchall()
+    return [(r["artist_name"], r["like_count"]) for r in rows]
+
+
 def _generate_artist_name(genre_id=None):
     """Generate an artist name, dispatching to the correct generator by category."""
+    # Check favorite artist pool first
+    if genre_id:
+        pool = _get_favorite_artist_pool(genre_id)
+        if pool and _random.random() < FAVORITE_ARTIST_REUSE_CHANCE:
+            names, weights = zip(*pool)
+            pick = _random.choices(names, weights=weights, k=1)[0]
+            logger.debug("Reusing favorite artist: %s", pick)
+            return pick
+
     if genre_id:
         gen_type, profile, category = _get_generator_info(genre_id)
     else:

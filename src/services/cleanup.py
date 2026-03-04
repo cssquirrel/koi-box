@@ -104,10 +104,24 @@ def _cleanup_oversized(db, current_track_id):
 
 def _delete_track(db, track_id, filepath):
     """Delete a track from DB and filesystem."""
+    # Get album_id before deleting so we can update the album's track count
+    track = db.execute(
+        "SELECT album_id FROM tracks WHERE id = ?", (track_id,)
+    ).fetchone()
+    album_id = track["album_id"] if track else None
+
     # Remove from playlists first
     db.execute("DELETE FROM playlist_tracks WHERE track_id = ?", (track_id,))
     # Delete track record
     db.execute("DELETE FROM tracks WHERE id = ?", (track_id,))
+
+    # Decrement the album's track count
+    if album_id:
+        db.execute(
+            "UPDATE albums SET track_count = MAX(track_count - 1, 0) WHERE id = ?",
+            (album_id,),
+        )
+
     db.commit()
 
     # Delete file

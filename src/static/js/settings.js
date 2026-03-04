@@ -95,6 +95,15 @@ function renderSettings(container, settings, genres, categories) {
       </div>
       <div class="settings-note">Unfavorited tracks are deleted when the first applicable condition is met. Set -1 to disable a condition.</div>
     </div>
+    <!-- Artists -->
+    <div class="settings-section">
+      <div class="settings-section-head">Artists</div>
+      <div class="settings-row">
+        <span class="settings-label">Generate artist bios</span>
+        ${renderToggle('settArtistBios', map.artist_bios_enabled)}
+      </div>
+      <div class="settings-note">When enabled, opening an artist page will generate a short bio using the local LLM. Requires the Qwen model to be downloaded.</div>
+    </div>
     <!-- Generation LM -->
     <div class="settings-section">
       <div class="settings-section-head">Generation - LM</div>
@@ -431,6 +440,7 @@ async function saveAllSettings(container) {
     ['preservation_time', parseNum(gv('settPreservation'), 24)],
     ['file_size_limit_mb', parseNum(gv('settFileSize'), 500)],
     ['buffer_max', parseNum(gv('settBufferMax'), 5)],
+    ['artist_bios_enabled', isToggleOn('settArtistBios')],
     ['lm_thinking', isToggleOn('settThinking')],
     ['lm_use_cot_caption', isToggleOn('settCotCaption')],
     ['lm_use_cot_language', isToggleOn('settCotLanguage')],

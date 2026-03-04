@@ -1,11 +1,15 @@
 """Playlist endpoints: CRUD, add/remove tracks, favorites."""
 
 import json
+import logging
 
 from fastapi import APIRouter, HTTPException
 
 from src.database import get_db
 from src.models import PlaylistAddTrackRequest, PlaylistCreateRequest, PlaylistOut
+from src.routes.tracks import _on_track_favorited
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["playlists"])
 
@@ -116,7 +120,23 @@ def add_track_to_playlist(playlist_id: int, req: PlaylistAddTrackRequest):
         "INSERT INTO playlist_tracks (playlist_id, track_id, position) VALUES (?, ?, ?)",
         (playlist_id, req.track_id, max_pos + 1),
     )
-    db.commit()
+
+    # Auto-favorite the track when added to a playlist
+    track = db.execute(
+        "SELECT id, artist, genre_id, album_id, status FROM tracks WHERE id = ?",
+        (req.track_id,),
+    ).fetchone()
+    if track and track["status"] != "favorited":
+        db.execute(
+            "UPDATE tracks SET status = 'favorited' WHERE id = ?",
+            (req.track_id,),
+        )
+        db.commit()
+        _on_track_favorited(db, track)
+        logger.info("Auto-favorited track %d on playlist add", req.track_id)
+    else:
+        db.commit()
+
     return {"ok": True}
 
 
@@ -132,8 +152,11 @@ def remove_track_from_playlist(playlist_id: int, track_id: int):
     return {"ok": True}
 
 
-def _track_with_album(row):
+def _track_with_album(row, db=None):
     """Convert a track row with joined album info to a dict."""
+    if db is None:
+        db = get_db()
+
     waveform = None
     if row["waveform"]:
         waveform = json.loads(row["waveform"])
@@ -141,6 +164,11 @@ def _track_with_album(row):
     cover = row["album_cover_url"]
     if cover and not cover.startswith("http"):
         cover = "/album-covers/" + cover
+
+    in_playlist = bool(db.execute(
+        "SELECT 1 FROM playlist_tracks WHERE track_id = ? LIMIT 1",
+        (row["id"],),
+    ).fetchone())
 
     return {
         "id": row["id"],
@@ -155,4 +183,5 @@ def _track_with_album(row):
         "waveform": waveform,
         "status": row["status"],
         "created_at": row["created_at"],
+        "in_playlist": in_playlist,
     }

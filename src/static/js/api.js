@@ -150,6 +150,10 @@ export function getArtistTracks(artistName) {
   return request('GET', `/artists/${encodeURIComponent(artistName)}/tracks`);
 }
 
+export function getArtistProfile(artistName) {
+  return request('GET', `/artists/${encodeURIComponent(artistName)}/profile`);
+}
+
 // -- Categories --
 
 export function getCategories() {

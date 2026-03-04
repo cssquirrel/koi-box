@@ -252,6 +252,13 @@
 [data-theme="dark"] .tracklist-add-row {
   border-top-color: #2e2b28;
 }
+[data-theme="dark"] .artist-profile-header {
+  border-bottom-color: #2e2b28;
+}
+[data-theme="dark"] .artist-album-cover,
+[data-theme="dark"] .artist-album-cover-empty {
+  background: #2e2b28;
+}
 
 /* Track picker overlay */
 [data-theme="dark"] .track-picker {
@@ -1100,6 +1107,8 @@ body {
 .view.active {
   display: flex;
   flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* ── OLED Screen ── */
@@ -1146,6 +1155,9 @@ body {
     0 1px 3px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   position: relative;
+}
+#playerAlbumArt {
+  cursor: pointer;
 }
 .screen-album-art img {
   width: 100%;
@@ -1662,6 +1674,10 @@ body {
 .hw-key .emoji.active {
   filter: none;
   opacity: 1;
+}
+.hw-key.hw-key-locked {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 /* Pause icon SVG in play button */
@@ -2195,6 +2211,20 @@ body {
   letter-spacing: 0.5px;
 }
 
+/* Push transport to bottom of player view */
+#playerView .tracklist-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+#playerView .tracklist-wrapper {
+  flex: 1;
+  max-height: none;
+  min-height: 0;
+  overflow-y: auto;
+}
+
 .tracklist-wrapper {
   max-height: 150px;
   overflow-y: auto;
@@ -2231,6 +2261,26 @@ body {
 .tracklist-num.active-num {
   color: var(--accent);
   font-weight: 700;
+}
+.tracklist-ephemeral {
+  opacity: 0.55;
+}
+.tracklist-ephemeral:hover,
+.tracklist-ephemeral.playing-track {
+  opacity: 0.85;
+}
+.tracklist-heart {
+  font-size: 11px;
+  cursor: pointer;
+  transition: color 0.15s, opacity 0.15s;
+  color: var(--fg-ghost);
+}
+.tracklist-heart:hover {
+  color: var(--accent);
+}
+.tracklist-heart.saved {
+  color: var(--accent);
+  cursor: pointer;
 }
 .tracklist-title-col {
   min-width: 0;
@@ -2382,6 +2432,103 @@ body {
 .tracklist-add-row .plus-icon {
   font-size: 14px;
   line-height: 1;
+}
+
+/* ── Artist Profile Header ── */
+.artist-profile-header {
+  padding: 16px 18px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.artist-profile-name {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--fg);
+  text-transform: uppercase;
+}
+.artist-profile-stats {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--fg-dim);
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+.artist-profile-bio {
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--fg-dim);
+  margin-top: 10px;
+  max-width: 420px;
+}
+.artist-profile-albums-label,
+.artist-profile-tracks-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--fg-ghost);
+  margin-top: 14px;
+  margin-bottom: 8px;
+}
+.artist-profile-albums {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.artist-album-card {
+  flex: 0 0 auto;
+  width: 80px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.artist-album-card:hover {
+  opacity: 0.8;
+}
+.artist-album-cover {
+  width: 80px;
+  height: 80px;
+  border-radius: 4px;
+  object-fit: cover;
+  background: var(--border);
+}
+.artist-album-cover-empty {
+  width: 80px;
+  height: 80px;
+  border-radius: 4px;
+  background: var(--border);
+}
+.artist-album-name {
+  font-family: var(--font-body);
+  font-size: 9px;
+  color: var(--fg);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.artist-album-meta {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--fg-ghost);
+}
+.artist-playlist-card {
+  flex: 0 0 auto;
+  width: 80px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.artist-playlist-card:hover {
+  opacity: 0.8;
+}
+.artist-playlist-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--fg-dim);
 }
 
 /* Track picker overlay */

@@ -2,6 +2,7 @@
 
 import logging
 import random
+import re
 
 from src.config import ALBUM_COVERS_DIR
 from src.database import get_db
@@ -23,8 +24,15 @@ def assign_track_to_album(genre_id, artist_name):
     return album
 
 
+def _strip_feat(artist: str) -> str:
+    """Remove (feat. ...) suffix from artist name."""
+    return re.sub(r"\s*\(feat\..*?\)", "", artist, flags=re.IGNORECASE).strip()
+
+
 def _pick_open_album(db, genre_id, artist_name):
-    """Pick a random open album for the genre, creating if needed."""
+    """Pick an open album for the genre, respecting ownership."""
+    base_artist = _strip_feat(artist_name)
+
     open_albums = db.execute(
         "SELECT * FROM albums WHERE genre_id = ? AND is_open = 1",
         (genre_id,),
@@ -35,8 +43,18 @@ def _pick_open_album(db, genre_id, artist_name):
         new_album = _create_album(db, genre_id, artist_name)
         open_albums.append(new_album)
 
-    # Pick one at random
-    album = random.choice(open_albums)
+    # Prefer unclaimed or same-owner albums; never assign to another artist's album
+    eligible = [
+        a for a in open_albums
+        if a["owner_artist"] == "" or a["owner_artist"] == base_artist
+    ]
+
+    if not eligible:
+        # All open albums are claimed by others — create a fresh one
+        new_album = _create_album(db, genre_id, artist_name)
+        return dict(new_album)
+
+    album = random.choice(eligible)
     return dict(album)
 
 

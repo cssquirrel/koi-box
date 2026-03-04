@@ -40,8 +40,10 @@ def init_db():
     db = get_db()
     _create_tables(db)
     _migrate_genres_schema(db)
+    _migrate_albums_schema(db)
     _seed_if_empty(db)
     _clear_stale_tasks(db)
+    _sync_album_track_counts(db)
     _migrate_album_covers_to_local(db)
 
 
@@ -61,6 +63,26 @@ def _clear_stale_tasks(db: sqlite3.Connection):
         logging.getLogger(__name__).info(
             "Cleared %d stale generation tasks from previous session", updated
         )
+
+
+def _sync_album_track_counts(db: sqlite3.Connection):
+    """Correct album track_count to match actual tracks in DB.
+
+    Runs on every startup to fix any drift caused by track deletion
+    or reassignment that didn't update the count.
+    """
+    logger = logging.getLogger(__name__)
+    fixed = db.execute(
+        """UPDATE albums SET track_count = (
+               SELECT COUNT(*) FROM tracks WHERE tracks.album_id = albums.id
+           )
+           WHERE track_count != (
+               SELECT COUNT(*) FROM tracks WHERE tracks.album_id = albums.id
+           )"""
+    ).rowcount
+    if fixed:
+        db.commit()
+        logger.info("Corrected track_count on %d albums", fixed)
 
 
 def _migrate_album_covers_to_local(db: sqlite3.Connection):
@@ -184,11 +206,27 @@ def _create_tables(db: sqlite3.Connection):
             completed_at  TIMESTAMP
         );
 
+        CREATE TABLE IF NOT EXISTS favorite_artists (
+            artist_name  TEXT NOT NULL,
+            genre_id     TEXT NOT NULL REFERENCES genres(id),
+            like_count   INTEGER NOT NULL DEFAULT 1,
+            created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (artist_name, genre_id)
+        );
+
+        CREATE TABLE IF NOT EXISTS artist_bios (
+            artist_name  TEXT PRIMARY KEY,
+            bio          TEXT NOT NULL,
+            genre_id     TEXT NOT NULL REFERENCES genres(id),
+            generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
         CREATE INDEX IF NOT EXISTS idx_tracks_genre ON tracks(genre_id);
         CREATE INDEX IF NOT EXISTS idx_tracks_status ON tracks(status);
         CREATE INDEX IF NOT EXISTS idx_tracks_album ON tracks(album_id);
         CREATE INDEX IF NOT EXISTS idx_albums_genre ON albums(genre_id);
         CREATE INDEX IF NOT EXISTS idx_generation_tasks_status ON generation_tasks(status);
+        CREATE INDEX IF NOT EXISTS idx_favorite_artists_genre ON favorite_artists(genre_id);
     """)
     db.commit()
 
@@ -216,6 +254,16 @@ def _migrate_genres_schema(db: sqlite3.Connection):
     # Re-seed genre data if new columns were added (updates existing rows)
     if migrations.keys() - columns:
         _reseed_genres(db)
+
+
+def _migrate_albums_schema(db: sqlite3.Connection):
+    """Add new columns to albums table if missing."""
+    logger = logging.getLogger(__name__)
+    columns = {r[1] for r in db.execute("PRAGMA table_info(albums)").fetchall()}
+    if "owner_artist" not in columns:
+        db.execute("ALTER TABLE albums ADD COLUMN owner_artist TEXT NOT NULL DEFAULT ''")
+        db.commit()
+        logger.info("Added column albums.owner_artist")
 
 
 def _seed_if_empty(db: sqlite3.Connection):

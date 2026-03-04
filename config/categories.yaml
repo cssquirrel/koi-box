@@ -25,6 +25,9 @@ categories:
         - 街が眠る頃
         - 遠い記憶に
         - 瞳を閉じて
+    bio_config:
+      system_prompt_file: citypop_bios.txt
+      max_tokens: 200
 
   lofi:
     display_name: Lo-Fi
@@ -33,6 +36,9 @@ categories:
     album_cover_directory: lofi
     generator: custom
     lyrics_engine: none
+    bio_config:
+      system_prompt_file: lofi_bios.txt
+      max_tokens: 200
 
   synthwave:
     display_name: Synthwave
@@ -41,3 +47,6 @@ categories:
     album_cover_directory: synthwave
     generator: custom
     lyrics_engine: none
+    bio_config:
+      system_prompt_file: synthwave_bios.txt
+      max_tokens: 200
