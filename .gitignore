@@ -221,3 +221,4 @@ skills-lock.json
 
 # Models
 models/
+scripts/generate_icon.py

@@ -306,7 +306,8 @@ genres:
           city pop, japanese pop, 80s, AOR, breezy, warm, summer,
           nostalgic, light, airy, female vocal, japanese vocal, acoustic
           guitar, Rhodes electric piano, gentle bass, soft drums, synth
-          pad, lush, polished, mellow, catchy melody
+          pad, lush, polished, mellow, catchy melody, major seventh
+          chords, add9 chords, diatonic harmony, warm chords
         dynamic_lyrics: true
         lyrics_guidance: >-
           MOOD: Light, warm, nostalgic, carefree, wistful.
@@ -588,10 +589,11 @@ genres:
         prefix: osaka-fusion
         caption: >-
           city pop, japanese pop, jazz fusion, 80s, energetic, bright,
-          technical, upbeat, complex, male vocal, japanese vocal, Rhodes
+          technical, upbeat, male vocal, japanese vocal, Rhodes
           electric piano, electric piano, slap bass, tight drums, synth
           lead, Yamaha DX7, brass section, horn stabs, polished,
-          high energy, catchy melody
+          high energy, catchy melody, dominant ninth chords,
+          tight unison lines, resolved harmony
         dynamic_lyrics: true
         lyrics_guidance: >-
           MOOD: Bright, adventurous, confident, fast-moving, celebratory.
