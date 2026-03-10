@@ -146,10 +146,9 @@ def _pick_genre_to_fill():
     Priority:
     1. ALL mode: check combined buffer across category, pick random variant.
     2. Current genre has 0 ready tracks (urgent — radio will stall).
-    3. Prebuffer genre has 0 ready tracks AND current has >=1 ready
-       (urgent — autopilot will stall on next switch).
-    4. Current genre below buffer_max (normal refill).
-    5. Prebuffer below PREBUFFER_TARGET (normal pre-fill).
+    3. Prebuffer genre has 0 ready tracks (urgent — autopilot will stall).
+    4. Prebuffer below PREBUFFER_TARGET (normal pre-fill).
+    5. Current genre below buffer_max (normal refill).
     6. First other genre with 0 unplayed tracks and no pending tasks.
     7. None if everything is stocked.
     """
@@ -183,10 +182,14 @@ def _pick_genre_to_fill():
     else:
         current = _current_genre_id
 
-    # Get current genre counts (used by multiple priority levels below)
+    # Compute counts once for current genre and prebuffer genre
     cur_unplayed, cur_pending = 0, 0
     if current:
         cur_unplayed, cur_pending = _genre_buffer_counts(db, current)
+
+    pb_unplayed, pb_pending = 0, 0
+    if _prebuffer_genre_id:
+        pb_unplayed, pb_pending = _genre_buffer_counts(db, _prebuffer_genre_id)
 
     # URGENT: current genre has no ready tracks — radio will stall
     if current and cur_unplayed == 0 and cur_pending == 0:
@@ -195,16 +198,24 @@ def _pick_genre_to_fill():
         )
         return current
 
-    # PREBUFFER PRIORITY: autopilot's next genre has no ready tracks,
-    # but current genre has at least 1 — spend this cycle on prebuffer
-    # to prevent a stall when autopilot switches.
-    if _prebuffer_genre_id and current and cur_unplayed >= 1:
-        pb_unplayed, pb_pending = _genre_buffer_counts(db, _prebuffer_genre_id)
-        if pb_unplayed == 0 and pb_pending == 0:
+    # PREBUFFER URGENT: autopilot's next genre has no ready tracks —
+    # autopilot will stall on next switch.
+    if _prebuffer_genre_id and pb_unplayed == 0 and pb_pending == 0:
+        logger.info(
+            "Pre-buffer URGENT [%s]: 0 ready, prioritizing prebuffer...",
+            _prebuffer_genre_id,
+        )
+        return _prebuffer_genre_id
+
+    # Normal pre-fill: prebuffer genre below PREBUFFER_TARGET
+    if _prebuffer_genre_id:
+        pb_total = pb_unplayed + pb_pending
+        if pb_total < PREBUFFER_TARGET:
             logger.info(
-                "Pre-buffer URGENT [%s]: 0 ready, current [%s] has %d — "
-                "prioritizing prebuffer...",
-                _prebuffer_genre_id, current, cur_unplayed,
+                "Pre-buffer [%s]: %d unplayed + %d pending = %d (target %d), "
+                "generating...",
+                _prebuffer_genre_id, pb_unplayed, pb_pending, pb_total,
+                PREBUFFER_TARGET,
             )
             return _prebuffer_genre_id
 
@@ -217,19 +228,6 @@ def _pick_genre_to_fill():
                 current, cur_unplayed, cur_pending, cur_total, buffer_max,
             )
             return current
-
-    # Normal pre-fill: prebuffer genre below PREBUFFER_TARGET
-    if _prebuffer_genre_id:
-        pb_unplayed, pb_pending = _genre_buffer_counts(db, _prebuffer_genre_id)
-        pb_total = pb_unplayed + pb_pending
-        if pb_total < PREBUFFER_TARGET:
-            logger.info(
-                "Pre-buffer [%s]: %d unplayed + %d pending = %d (target %d), "
-                "generating...",
-                _prebuffer_genre_id, pb_unplayed, pb_pending, pb_total,
-                PREBUFFER_TARGET,
-            )
-            return _prebuffer_genre_id
 
     # Background fill: any genre with 0 ready tracks.
     # Only consider genres that exist in the current config (skip stale DB entries).

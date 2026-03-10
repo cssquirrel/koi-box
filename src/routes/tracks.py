@@ -3,10 +3,11 @@
 import json
 import logging
 import re
+import threading
 
 from fastapi import APIRouter, HTTPException
 
-from src.database import get_db
+from src.database import get_db, get_setting
 from src.models import TrackOut, TrackStatusRequest
 
 logger = logging.getLogger(__name__)
@@ -72,7 +73,16 @@ def update_track_status(track_id: int, req: TrackStatusRequest):
     if not track:
         raise HTTPException(status_code=404, detail="Track not found")
 
-    db.execute("UPDATE tracks SET status = ? WHERE id = ?", (req.status, track_id))
+    if req.status == "favorited":
+        db.execute(
+            "UPDATE tracks SET status = ?, favorited_at = CURRENT_TIMESTAMP WHERE id = ?",
+            (req.status, track_id),
+        )
+    else:
+        db.execute(
+            "UPDATE tracks SET status = ?, favorited_at = NULL WHERE id = ?",
+            (req.status, track_id),
+        )
     db.commit()
 
     if req.status == "favorited":
@@ -92,6 +102,12 @@ def _on_track_favorited(db, track):
     genre_id = track["genre_id"]
     album_id = track["album_id"]
 
+    # Check if artist is new to the pool (no rows yet)
+    is_new_artist = not db.execute(
+        "SELECT 1 FROM favorite_artists WHERE artist_name = ?",
+        (base_artist,),
+    ).fetchone()
+
     # Upsert into favorite_artists pool
     db.execute(
         """INSERT INTO favorite_artists (artist_name, genre_id, like_count)
@@ -102,6 +118,10 @@ def _on_track_favorited(db, track):
     )
     db.commit()
     logger.info("Favorite artist pool: %s +1 for %s", base_artist, genre_id)
+
+    # Generate bio in background for newly favorited artists
+    if is_new_artist:
+        _maybe_generate_bio_async(base_artist, genre_id)
 
     # Claim album ownership if unclaimed
     if not album_id:
@@ -168,6 +188,33 @@ def _claim_album(db, album, owner_artist):
         )
         db.commit()
         logger.info("Moved %d tracks out of album %d", moved, album_id)
+
+
+def _maybe_generate_bio_async(artist_name, genre_id):
+    """Kick off background bio generation for a newly favorited artist."""
+    if not get_setting("artist_bios_enabled", False):
+        return
+
+    def _run():
+        try:
+            from src.database import get_db as _get_db
+            db = _get_db()
+            # Skip if bio already exists
+            if db.execute(
+                "SELECT 1 FROM artist_bios WHERE artist_name = ?",
+                (artist_name,),
+            ).fetchone():
+                return
+            genre = db.execute(
+                "SELECT category FROM genres WHERE id = ?", (genre_id,)
+            ).fetchone()
+            category = genre["category"] if genre else "lofi"
+            from src.services.bios import generate_artist_bio
+            generate_artist_bio(artist_name, genre_id, category)
+        except Exception as e:
+            logger.warning("Background bio generation failed for %s: %s", artist_name, e)
+
+    threading.Thread(target=_run, daemon=True).start()
 
 
 def _row_to_track(db, row) -> dict:

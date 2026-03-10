@@ -41,6 +41,7 @@ def init_db():
     _create_tables(db)
     _migrate_genres_schema(db)
     _migrate_albums_schema(db)
+    _migrate_tracks_schema(db)
     _seed_if_empty(db)
     _clear_stale_tasks(db)
     _sync_album_track_counts(db)
@@ -264,6 +265,20 @@ def _migrate_albums_schema(db: sqlite3.Connection):
         db.execute("ALTER TABLE albums ADD COLUMN owner_artist TEXT NOT NULL DEFAULT ''")
         db.commit()
         logger.info("Added column albums.owner_artist")
+
+
+def _migrate_tracks_schema(db: sqlite3.Connection):
+    """Add new columns to tracks table if missing."""
+    logger = logging.getLogger(__name__)
+    columns = {r[1] for r in db.execute("PRAGMA table_info(tracks)").fetchall()}
+    if "favorited_at" not in columns:
+        db.execute("ALTER TABLE tracks ADD COLUMN favorited_at TIMESTAMP")
+        # Backfill: set favorited_at = created_at for existing favorited tracks
+        db.execute(
+            "UPDATE tracks SET favorited_at = created_at WHERE status = 'favorited'"
+        )
+        db.commit()
+        logger.info("Added column tracks.favorited_at (backfilled existing favorites)")
 
 
 def _seed_if_empty(db: sqlite3.Connection):

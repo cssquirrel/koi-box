@@ -129,6 +129,20 @@ def prebuffer(req: GenreSwitchRequest):
     return {"ok": True}
 
 
+@router.get("/radio/buffer-status")
+def get_buffer_status():
+    """Return unplayed track counts per genre for autopilot readiness checks."""
+    db = get_db()
+    rows = db.execute(
+        """SELECT genre_id, COUNT(*) as ready
+           FROM tracks
+           WHERE status IN ('active', 'favorited')
+           AND played_at IS NULL
+           GROUP BY genre_id"""
+    ).fetchall()
+    return {r["genre_id"]: r["ready"] for r in rows}
+
+
 @router.post("/radio/play")
 def play():
     """Start or resume playback."""
@@ -271,7 +285,8 @@ def list_genres():
     rows = get_all_genres()
     cols = {col[1] for col in get_db().execute("PRAGMA table_info(genres)").fetchall()}
     has_gen_type = "generator_type" in cols
-    valid_categories = set(load_categories_config().keys())
+    categories_cfg = load_categories_config()
+    valid_categories = set(categories_cfg.keys())
     return [
         GenreOut(
             id=r["id"],
@@ -290,6 +305,7 @@ def list_genres():
             duration_max=r["duration_max"],
             sort_order=r["sort_order"],
             generator_type=r["generator_type"] if has_gen_type else "custom",
+            category_display_name=categories_cfg.get(r["category"], {}).get("display_name", ""),
         )
         for r in rows
         if r["category"] in valid_categories

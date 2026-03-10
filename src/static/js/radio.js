@@ -2,7 +2,7 @@
 
 import * as api from './api.js';
 import * as audio from './audio.js';
-import { initBand, getCurrentGenre, getCurrentGenreIdx, getCurrentCategory, isAllMode, setCurrentGenreIdx, getCategoryVariants, restorePreset, getOledColor } from './band.js';
+import { initBand, getCurrentGenre, getCurrentGenreIdx, getCurrentCategory, isAllMode, setCurrentGenreIdx, getCategoryVariants, restorePreset, getOledColor, getCategoryDisplayName } from './band.js';
 import { setPlayIcons, refreshStatus, applyLibraryState } from './controls.js';
 import { initAutopilot, isAutopilotOn, disengageAutopilot, onTrackEnd as autopilotTrackEnd } from './autopilot.js';
 import { updateRadioScreen, updateRadioProgress, updateScreenGenre, initWaveform, updateWaveformCursor, setWaveformPlaying, updateSignalDots, setOledAccent } from './screen.js';
@@ -57,7 +57,7 @@ export async function initRadio() {
       console.error('Failed to set initial genre:', e);
     }
     if (genre && genre._isAll) {
-      $('screenGenre').textContent = cat.toUpperCase() + ' / SHUFFLE';
+      $('screenGenre').textContent = getCategoryDisplayName().toUpperCase() + ' / SHUFFLE';
     } else if (genre) {
       updateScreenGenre(genre.id);
     }
@@ -348,6 +348,7 @@ function saveToPreset(slotIdx, btn) {
     category: currentCat,
     variantIdx: currentIdx,
     allMode: isAllMode(),
+    displayName: getCategoryDisplayName(),
   };
   activePresetIdx = slotIdx;
   savePresetsToSettings();
@@ -375,7 +376,7 @@ function showPresetTooltip(btn, slotIdx) {
   tooltipEl = document.createElement('div');
   tooltipEl.className = 'preset-tooltip';
   tooltipEl.textContent = data
-    ? (data.allMode ? data.category.toUpperCase() + '/SHUFFLE' : data.category.toUpperCase())
+    ? (data.allMode ? (data.displayName || data.category).toUpperCase() + '/SHUFFLE' : (data.displayName || data.category).toUpperCase())
     : 'HOLD TO SAVE';
 
   const arrow = document.createElement('div');

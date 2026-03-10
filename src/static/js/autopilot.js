@@ -16,6 +16,7 @@ let firstPick = true;
 let lastVariantId = null;
 let nextVariant = null;   // pre-picked genre for look-ahead buffering
 let weatherData = null;
+let bufferStatus = {};    // cached: { genreId: readyCount }
 
 export function isAutopilotOn() { return active; }
 
@@ -173,10 +174,17 @@ function weightedRandomPick(scored) {
   return scored[scored.length - 1]?.genre || null;
 }
 
+function pickReadyVariant(allGenres) {
+  const readyGenres = allGenres.filter(g => (bufferStatus[g.id] || 0) > 0);
+  if (readyGenres.length === 0) return pickVariant(allGenres);
+  return pickVariant(readyGenres);
+}
+
 // ── Look-ahead pre-buffer ──
 
 function schedulePrePick() {
   if (!active) return;
+  api.getBufferStatus().then(status => { bufferStatus = status || {}; }).catch(() => {});
   const genre = pickVariant(band.getAllGenres());
   if (genre) {
     nextVariant = genre;
@@ -250,10 +258,13 @@ export function engageAutopilot() {
   const lampDot = document.querySelector('#apLamp .led-dot');
   if (lampDot) lampDot.classList.remove('off');
 
-  // Fetch weather then make first pick
-  fetchWeather().then(() => {
+  // Fetch weather + buffer status then make first pick
+  Promise.all([
+    fetchWeather(),
+    api.getBufferStatus().then(status => { bufferStatus = status || {}; }).catch(() => {}),
+  ]).then(() => {
     if (!active) return; // disengaged while fetching
-    const genre = pickVariant(band.getAllGenres());
+    const genre = pickReadyVariant(band.getAllGenres());
     if (genre) executeAutopilotSwitch(genre);
   });
 }
@@ -264,6 +275,7 @@ export function disengageAutopilot() {
   firstPick = true;
   lastVariantId = null;
   nextVariant = null;
+  bufferStatus = {};
   api.clearPrebuffer().catch(() => {});
 
   // Dim AP lamp
@@ -282,9 +294,16 @@ export function disengageAutopilot() {
 export function onTrackEnd() {
   if (!active) return false;
 
-  // Use the pre-picked variant if available, otherwise roll fresh
-  const genre = nextVariant || pickVariant(band.getAllGenres());
+  let genre = nextVariant;
   nextVariant = null;
+
+  // Validate pre-pick against cached buffer status; fall back if empty
+  if (genre && (bufferStatus[genre.id] || 0) === 0) {
+    genre = pickReadyVariant(band.getAllGenres());
+  }
+  if (!genre) {
+    genre = pickReadyVariant(band.getAllGenres());
+  }
   if (!genre) return false;
 
   const current = band.getCurrentGenre();

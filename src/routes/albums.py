@@ -133,15 +133,19 @@ def get_artist_profile(artist_name: str):
     track_count = sum(r["cnt"] for r in track_stats)
     genre_id = track_stats[0]["genre_id"] if track_stats else None
 
-    # Get bio (may trigger generation if enabled)
-    bio = None
-    if genre_id:
-        genre = db.execute(
-            "SELECT category FROM genres WHERE id = ?", (genre_id,)
-        ).fetchone()
-        category = genre["category"] if genre else "lofi"
-        from src.services.bios import get_artist_bio
-        bio = get_artist_bio(base, genre_id, category)
+    # Get bio — return existing, or generate on the spot if favorited artist lacks one
+    from src.services.bios import get_artist_bio, generate_artist_bio
+    from src.database import get_setting
+    bio = get_artist_bio(base)
+    if not bio and genre_id and get_setting("artist_bios_enabled", False):
+        if db.execute(
+            "SELECT 1 FROM favorite_artists WHERE artist_name = ?", (base,)
+        ).fetchone():
+            genre = db.execute(
+                "SELECT category FROM genres WHERE id = ?", (genre_id,)
+            ).fetchone()
+            category = genre["category"] if genre else "lofi"
+            bio = generate_artist_bio(base, genre_id, category)
 
     # Get albums the artist appears in
     album_rows = db.execute(

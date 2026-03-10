@@ -79,6 +79,29 @@ def _title_case(text):
     return " ".join(result)
 
 
+def _romanize_korean(text):
+    """Append romanization if text contains Korean characters.
+
+    Returns the original text unchanged if no Korean is detected,
+    so non-Korean categories are unaffected.  For feat. strings,
+    only the Korean portion before the parenthetical is romanized.
+    """
+    if not re.search(r"[\uAC00-\uD7AF\u3130-\u318F]", text):
+        return text
+    try:
+        from korean_romanizer.romanizer import Romanizer
+        # Split off feat. suffix so we don't double-parenthetical
+        feat_match = re.match(r"^(.+?)(\s*\(feat\..+\))$", text, re.IGNORECASE)
+        if feat_match:
+            base, feat_part = feat_match.group(1), feat_match.group(2)
+            romanized = Romanizer(base).romanize().strip()
+            return f"{base} ({_title_case(romanized)}){feat_part}"
+        romanized = Romanizer(text).romanize().strip()
+        return f"{text} ({_title_case(romanized)})"
+    except Exception:
+        return text
+
+
 def generate_track_name(category, profile_name):
     """Generate a track name using a generic profile.
 
@@ -147,9 +170,9 @@ def generate_artist_name(category, profile_name):
             ft = random.choice(feat_templates)
             result = _fill_template(ft, feat_pools)
             if result:
-                return result
+                return _romanize_korean(result)
 
-    return base_name
+    return _romanize_korean(base_name)
 
 
 def generate_album_name(category, profile_name):

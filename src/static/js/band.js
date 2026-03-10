@@ -15,6 +15,7 @@ let isTuning = false;
 let categoryVariants = {};   // { category: variantIdx } per-category memory
 let categoryColors = {};     // { category: '#hex' } built from genre data
 let categoryOledColors = {}; // { category: 'hex' } built from genre data
+let categoryDisplayNames = {}; // { category: 'Display Name' } from backend
 let motorized = false;       // slower transitions when autopilot is driving
 
 // The variant list for the current category, with ALL prepended
@@ -33,6 +34,7 @@ export function initBand(genreList, savedState = null) {
   categories = [];
   categoryColors = {};
   categoryOledColors = {};
+  categoryDisplayNames = {};
   for (const g of genreList) {
     const cat = g.category || 'other';
     if (!genresByCategory[cat]) {
@@ -45,6 +47,9 @@ export function initBand(genreList, savedState = null) {
     }
     if (g.oled_color && !categoryOledColors[cat]) {
       categoryOledColors[cat] = g.oled_color;
+    }
+    if (g.category_display_name && !categoryDisplayNames[cat]) {
+      categoryDisplayNames[cat] = g.category_display_name;
     }
   }
 
@@ -140,7 +145,7 @@ function renderCategorySwitch() {
     indicator.style.boxShadow = isActive ? `0 0 8px ${color}55` : 'none';
 
     const label = document.createElement('span');
-    label.textContent = cat.toUpperCase();
+    label.textContent = (categoryDisplayNames[cat] || cat).toUpperCase();
 
     btn.appendChild(indicator);
     btn.appendChild(label);
@@ -221,7 +226,7 @@ function switchVariant(idx, force = false) {
 
   const variant = currentVariants()[currentVariantIdx];
   const displayLabel = variant._isAll
-    ? currentCategory.toUpperCase() + ' / SHUFFLE'
+    ? (categoryDisplayNames[currentCategory] || currentCategory).toUpperCase() + ' / SHUFFLE'
     : variant.id.replace(/-/g, ' ').toUpperCase();
   $('screenGenre').textContent = displayLabel;
 
@@ -274,6 +279,11 @@ export function restorePreset(category, variantIdx) {
 /** Return the OLED accent color hex (without #) for the current category. */
 export function getOledColor() {
   return categoryOledColors[currentCategory] || '';
+}
+
+/** Return the display name for the current category (falls back to raw ID). */
+export function getCategoryDisplayName() {
+  return categoryDisplayNames[currentCategory] || currentCategory;
 }
 
 /** Listen for window resize to reposition needle. */

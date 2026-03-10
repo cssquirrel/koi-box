@@ -46,6 +46,7 @@ class GenreOut(BaseModel):
     duration_max: int
     sort_order: int
     generator_type: str = "custom"
+    category_display_name: str = ""
 
 
 class GenreCreateRequest(BaseModel):
