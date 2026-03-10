@@ -121,6 +121,10 @@ export function clearPrebuffer() {
   return request('POST', '/radio/prebuffer', { genre_id: null });
 }
 
+export function getBufferStatus() {
+  return request('GET', '/radio/buffer-status');
+}
+
 // -- Radio Queue --
 
 export function getRadioQueue() {

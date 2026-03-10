@@ -10,4 +10,5 @@ pydub>=0.25
 aiosqlite>=0.21
 # Install separately with prebuilt wheel (build from source often fails on Windows):
 #   pip install llama-cpp-python --prefer-binary --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+korean-romanizer>=0.28
 tqdm>=4.66

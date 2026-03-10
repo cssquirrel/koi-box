@@ -490,14 +490,17 @@ def generate_lyrics_for_genre(genre_row, max_retries: int = 3,
     logger.info("Generating lyrics for %s (theme: %s, slots: %d)",
                 genre_row["id"], theme_seed, len(slots))
 
-    llm = _load_model()
-    try:
-        filled = _generate_with_retries(
-            llm, genre_row, slots, template_lyrics, theme_seed,
-            max_retries, temperature, lyrics_config
-        )
-    finally:
-        _unload_model(llm)
+    from src.services.llm_lock import llm_lock
+
+    with llm_lock:
+        llm = _load_model()
+        try:
+            filled = _generate_with_retries(
+                llm, genre_row, slots, template_lyrics, theme_seed,
+                max_retries, temperature, lyrics_config
+            )
+        finally:
+            _unload_model(llm)
 
     return filled
 

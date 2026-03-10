@@ -75,36 +75,24 @@ def _unload_model(llm):
     logger.info("Bio LLM unloaded.")
 
 
-def get_artist_bio(artist_name, genre_id, category):
-    """Return an existing bio or generate one if enabled.
+def get_artist_bio(artist_name):
+    """Return an existing bio if one has been generated.
 
-    Returns bio string or None.
+    Returns bio string or None.  Generation is triggered separately
+    when an artist's first track is favorited.
     """
     db = get_db()
-
-    # Check for existing bio
     row = db.execute(
         "SELECT bio FROM artist_bios WHERE artist_name = ?",
         (artist_name,),
     ).fetchone()
-    if row:
-        return row["bio"]
-
-    # Only generate for favorited artists with bios enabled
-    if not get_setting("artist_bios_enabled", False):
-        return None
-
-    if not db.execute(
-        "SELECT 1 FROM favorite_artists WHERE artist_name = ?",
-        (artist_name,),
-    ).fetchone():
-        return None
-
-    return generate_artist_bio(artist_name, genre_id, category)
+    return row["bio"] if row else None
 
 
 def generate_artist_bio(artist_name, genre_id, category):
     """Generate a bio using Qwen and store it in the DB."""
+    from src.services.llm_lock import llm_lock
+
     config = _load_bio_config(category)
 
     # Get genre caption for context
@@ -115,28 +103,29 @@ def generate_artist_bio(artist_name, genre_id, category):
     ).fetchone()
     caption = genre["caption"] if genre else category
 
-    llm = _load_model()
-    if not llm:
-        return None
+    with llm_lock:
+        llm = _load_model()
+        if not llm:
+            return None
 
-    try:
-        bio = _generate_raw(
-            llm, artist_name, caption,
-            config["system_prompt"], config["max_tokens"],
-        )
-        if bio:
-            db.execute(
-                """INSERT OR REPLACE INTO artist_bios
-                   (artist_name, bio, genre_id) VALUES (?, ?, ?)""",
-                (artist_name, bio, genre_id),
+        try:
+            bio = _generate_raw(
+                llm, artist_name, caption,
+                config["system_prompt"], config["max_tokens"],
             )
-            db.commit()
-            logger.info("Generated bio for %s (%d chars)", artist_name, len(bio))
-            return bio
-    except Exception as e:
-        logger.warning("Bio generation failed for %s: %s", artist_name, e)
-    finally:
-        _unload_model(llm)
+            if bio:
+                db.execute(
+                    """INSERT OR REPLACE INTO artist_bios
+                       (artist_name, bio, genre_id) VALUES (?, ?, ?)""",
+                    (artist_name, bio, genre_id),
+                )
+                db.commit()
+                logger.info("Generated bio for %s (%d chars)", artist_name, len(bio))
+                return bio
+        except Exception as e:
+            logger.warning("Bio generation failed for %s: %s", artist_name, e)
+        finally:
+            _unload_model(llm)
 
     return None
 
@@ -144,9 +133,9 @@ def generate_artist_bio(artist_name, genre_id, category):
 def _generate_raw(llm, artist_name, caption, system_prompt, max_tokens):
     """Run the LLM and return the bio text."""
     user_msg = (
-        f"Write a bio for a fictional artist.\n"
+        f"Write a bio for the fictional artist: {artist_name}\n"
         f"Genre style: {caption}\n"
-        f"Do NOT include the artist's name. "
+        f"Do NOT include the artist's name in the bio. "
         f"Start with a complete, self-contained sentence."
     )
 

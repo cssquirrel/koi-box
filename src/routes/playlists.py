@@ -59,7 +59,7 @@ def get_favorites_tracks():
            FROM tracks t
            LEFT JOIN albums a ON t.album_id = a.id
            WHERE t.status = 'favorited'
-           ORDER BY t.created_at DESC"""
+           ORDER BY t.favorited_at DESC"""
     ).fetchall()
     return [_track_with_album(r) for r in rows]
 
@@ -128,7 +128,7 @@ def add_track_to_playlist(playlist_id: int, req: PlaylistAddTrackRequest):
     ).fetchone()
     if track and track["status"] != "favorited":
         db.execute(
-            "UPDATE tracks SET status = 'favorited' WHERE id = ?",
+            "UPDATE tracks SET status = 'favorited', favorited_at = CURRENT_TIMESTAMP WHERE id = ?",
             (req.track_id,),
         )
         db.commit()
