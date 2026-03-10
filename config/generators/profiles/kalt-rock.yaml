@@ -1,0 +1,49 @@
+# K-Alt Rock — generator profile for Korean alt-rock / nu-metal categories.
+# Referenced by categories with generator: profile, generator_profile: kalt-rock
+# Pool file paths resolve relative to pools/{category}/ then pools/_shared/.
+
+track_names:
+  templates:
+    - "{emotion}"
+    - "{adj} {noun}"
+    - "{verb} the {noun}"
+    - "{noun} of {noun2}"
+    - "{adj} {noun} {suffix}"
+    - "{noun}"
+  pools:
+    emotion: emotions.txt
+    adj: adjectives.txt
+    noun: nouns.txt
+    noun2: nouns.txt
+    verb: verbs.txt
+    suffix: suffixes.txt
+
+artist_names:
+  templates:
+    - "{prefix}{suffix}"
+    - "{word} {word2}"
+    - "{solo}"
+    - "{hangul}"
+  feat_chance: 0.15
+  feat_templates:
+    - "{name} (feat. {feat})"
+  pools:
+    prefix: artist_prefixes.txt
+    suffix: artist_suffixes.txt
+    word: artist_words.txt
+    word2: artist_words2.txt
+    solo: artist_solo.txt
+    hangul: artist_hangul.txt
+    feat: artist_feat.txt
+
+album_names:
+  templates:
+    - "{adj} {noun}"
+    - "{noun} {noun2}"
+    - "{article} {adj} {noun}"
+    - "{noun}"
+  pools:
+    adj: album_adjectives.txt
+    noun: album_nouns.txt
+    noun2: album_nouns.txt
+    article: album_articles.txt
