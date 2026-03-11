@@ -40,28 +40,6 @@ categories:
       system_prompt_file: lofi_bios.txt
       max_tokens: 200
 
-  kalt:
-    display_name: K-Alt
-    genre_selector_color: "8B2232"
-    oled_color: "FF2244"
-    album_cover_directory: synthwave
-    generator: profile
-    generator_profile: kalt-rock
-    lyrics_engine: llm
-    lyrics_config:
-      system_prompt_file: kalt_lyrics.txt
-      language: any
-      max_chars: 30
-      placeholder_lyrics:
-        - 또 무너져 내려
-        - 소리쳐도 닿지 않아
-        - 이 어둠 속에서
-        - 벽을 부수고 나가
-        - 숨을 쉴 수 없어
-        - 다시 일어서야 해
-        - 끝이 보이지 않아
-        - 네 목소리가 들려
-
   synthwave:
     display_name: Synthwave
     genre_selector_color: "C45B6E"
