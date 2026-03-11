@@ -212,6 +212,33 @@ export function geocodeSearch(query) {
   return request('GET', `/weather/geocode?q=${encodeURIComponent(query)}`);
 }
 
+// -- Genre Packs --
+
+export function browsePacks() {
+  return request('GET', '/packs/browse');
+}
+
+export function getInstalledPacks() {
+  return request('GET', '/packs/installed');
+}
+
+export function installPack(packPath = null, url = null) {
+  const body = {};
+  if (packPath) body.pack_path = packPath;
+  if (url) body.url = url;
+  return request('POST', '/packs/install', body);
+}
+
+export function uninstallPack(categoryId) {
+  return request('DELETE', `/packs/${categoryId}`);
+}
+
+// -- Autopilot Weights --
+
+export function getAutopilotWeights() {
+  return request('GET', '/autopilot/weights');
+}
+
 // -- Audio --
 
 export function audioUrl(filename) {

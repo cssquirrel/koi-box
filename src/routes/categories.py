@@ -123,4 +123,27 @@ def delete_category(category_id: str):
     # Remove from YAML files
     remove_category_from_yaml(category_id)
 
+    # Clean up pack files if this was an installed pack
+    try:
+        from src.services.packs import (
+            _cleanup_pack_files,
+            _load_autopilot_weights,
+            _load_installed_packs,
+            _save_autopilot_weights,
+            _save_installed_packs,
+        )
+        installed = _load_installed_packs()
+        pack_info = installed.get(category_id)
+        if pack_info:
+            if "files" in pack_info:
+                _cleanup_pack_files(pack_info["files"], category_id)
+            weights = _load_autopilot_weights()
+            for vid in pack_info.get("manifest", {}).get("variants", []):
+                weights.pop(vid, None)
+            _save_autopilot_weights(weights)
+            installed.pop(category_id, None)
+            _save_installed_packs(installed)
+    except Exception:
+        pass  # Pack cleanup is best-effort
+
     return {"ok": True}

@@ -17,6 +17,7 @@ let lastVariantId = null;
 let nextVariant = null;   // pre-picked genre for look-ahead buffering
 let weatherData = null;
 let bufferStatus = {};    // cached: { genreId: readyCount }
+let dynamicWeights = {};  // from installed packs: { variantId: { time: {...}, weather: {...} } }
 
 export function isAutopilotOn() { return active; }
 
@@ -141,17 +142,32 @@ function getTempModifier(variantId) {
 
 // ── Weighted pool ──
 
+function getTimeWeight(variantId, timeWindow) {
+  // Check hardcoded first, then dynamic weights from packs
+  const hardcoded = TIME_WEIGHTS[timeWindow];
+  if (hardcoded && variantId in hardcoded) return hardcoded[variantId];
+  const dw = dynamicWeights[variantId];
+  if (dw && dw.time && timeWindow in dw.time) return dw.time[timeWindow];
+  return 1; // unknown genre default
+}
+
+function getWeatherWeight(variantId, mood) {
+  const hardcoded = WEATHER_MOOD_WEIGHTS[mood];
+  if (hardcoded && variantId in hardcoded) return hardcoded[variantId];
+  const dw = dynamicWeights[variantId];
+  if (dw && dw.weather && mood in dw.weather) return dw.weather[mood];
+  return 0;
+}
+
 function pickVariant(allGenres) {
   const timeWindow = getTimeWindow();
-  const timeMap = TIME_WEIGHTS[timeWindow] || {};
 
   const mood = (weatherData && weatherData.configured && weatherData.weather_code !== undefined)
     ? getWeatherMood(weatherData.weather_code) : null;
-  const moodMap = mood ? (WEATHER_MOOD_WEIGHTS[mood] || {}) : {};
 
   const scored = allGenres.map(genre => {
-    let weight = timeMap[genre.id] || 1;
-    weight += moodMap[genre.id] || 0;
+    let weight = getTimeWeight(genre.id, timeWindow);
+    weight += mood ? getWeatherWeight(genre.id, mood) : 0;
     weight += getTempModifier(genre.id);
     if (genre.id === lastVariantId) weight = 0; // no-repeat
     return { genre, weight: Math.max(0, weight) };
@@ -258,10 +274,11 @@ export function engageAutopilot() {
   const lampDot = document.querySelector('#apLamp .led-dot');
   if (lampDot) lampDot.classList.remove('off');
 
-  // Fetch weather + buffer status then make first pick
+  // Fetch weather + buffer status + dynamic weights then make first pick
   Promise.all([
     fetchWeather(),
     api.getBufferStatus().then(status => { bufferStatus = status || {}; }).catch(() => {}),
+    fetchDynamicWeights(),
   ]).then(() => {
     if (!active) return; // disengaged while fetching
     const genre = pickReadyVariant(band.getAllGenres());
@@ -324,6 +341,14 @@ function fetchWeather() {
   return api.getWeather().then(data => { weatherData = data; }).catch(() => { weatherData = null; });
 }
 
+// ── Dynamic weights (installed packs) ──
+
+function fetchDynamicWeights() {
+  return api.getAutopilotWeights()
+    .then(data => { dynamicWeights = data || {}; })
+    .catch(() => { dynamicWeights = {}; });
+}
+
 // ── Init ──
 
 export function initAutopilot() {
@@ -336,6 +361,9 @@ export function initAutopilot() {
     lamp.innerHTML = '<div class="led-dot off"></div><span class="led-label">AP</span>';
     tuner.appendChild(lamp);
   }
+
+  // Load dynamic weights from installed packs
+  fetchDynamicWeights();
 
   // When a track starts playing, pre-pick the next genre and send
   // the prebuffer hint.  This gives the buffer worker the full song
