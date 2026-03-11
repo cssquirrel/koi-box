@@ -1096,3 +1096,467 @@ genres:
         key_scale: C minor
         duration_min: 120
         duration_max: 179
+  kalt:
+    variants:
+      lee-park:
+        description: >
+          Korean alt-rock heavily inspired by Linkin Park. Heavy distorted
+          guitars, electronic elements, turntable scratches, aggressive
+          rap-rock verses, and emotional Korean vocals. Dynamic loud-quiet
+          shifts between coiled verses and explosive choruses with
+          industrial nu-metal undertones.
+        prefix: leepark
+        caption: >-
+          alt rock, nu-metal, korean rock, heavy distorted guitar riffs,
+          drop-tuned guitar, palm-muted chugging, electronic elements,
+          turntable scratches, DJ scratching, aggressive male vocals,
+          emotional korean vocals, rap-rock verses, screamed chorus,
+          dynamic loud-quiet dynamics, industrial undertones, punchy
+          drums, double kick, gated reverb snare, synth stabs, sampling,
+          distorted bass, breakdown, high energy, intense, raw, emotional
+        dynamic_lyrics: true
+        lyrics_guidance: >-
+          MOOD: Intense, raw, emotionally volatile — oscillating between
+          quiet seething anger and explosive release.
+          THEMES: Inner turmoil, alienation, resilience, breaking free,
+          emotional suffocation, defiance, numbness, fighting back.
+          IMAGERY: Cracked walls, falling, drowning, fire, clenched fists,
+          shattered glass, chains, scars, storm.
+          RAP LINES should be dense, rhythmic, rapid-fire — short punchy
+          syllables that hit hard.
+          SUNG LINES should be more open and emotional — sustained vowels.
+        lyrics: |
+          [Intro - distorted guitar feedback, electronic glitch]
+
+          [Verse 1 - tight, restrained, building tension]
+          {THEME_SEED}
+          {LYRICS_VERSE_1_LINE_2}
+          {LYRICS_VERSE_1_LINE_3}
+          {LYRICS_VERSE_1_LINE_4}
+
+          [Chorus - explosive, screamed vocals, full band]
+          {LYRICS_CHORUS_LINE_1}
+          {LYRICS_CHORUS_LINE_2}
+          {LYRICS_CHORUS_LINE_3}
+          {LYRICS_CHORUS_LINE_4}
+
+          [Rap - aggressive, rapid-fire delivery over electronic beats]
+          {LYRICS_RAP_LINE_1}
+          {LYRICS_RAP_LINE_2}
+          {LYRICS_RAP_LINE_3}
+          {LYRICS_RAP_LINE_4}
+
+          [Chorus - explosive, screamed vocals, full band]
+          {LYRICS_CHORUS_LINE_1}
+          {LYRICS_CHORUS_LINE_2}
+          {LYRICS_CHORUS_LINE_3}
+          {LYRICS_CHORUS_LINE_4}
+
+          [Bridge - stripped back, vulnerable, building]
+          {LYRICS_BRIDGE_LINE_1}
+          {LYRICS_BRIDGE_LINE_2}
+
+          [Chorus - final, loudest, everything unleashed]
+          {LYRICS_CHORUS_LINE_1}
+          {LYRICS_CHORUS_LINE_2}
+          {LYRICS_CHORUS_LINE_3}
+          {LYRICS_CHORUS_LINE_4}
+
+          [Outro - distorted guitar rings out, fades to static]
+        bpm_min: 100
+        bpm_max: 140
+        key_scale: D Minor
+        duration_min: 165
+        duration_max: 240
+        theme_seeds:
+          - 또 무너져 내려
+          - 이 어둠 속에서
+          - 소리쳐도 닿지 않아
+          - 벽을 부수고 나가
+          - 숨을 쉴 수 없어
+          - 불꽃이 꺼져간다
+          - 내 안의 폭풍
+          - 손을 뻗어도 닿지 않아
+          - 거울 속의 낯선 얼굴
+          - 상처투성이 손으로
+          - 잿더미 위에 서서
+          - 쇠사슬을 끊어
+          - 목이 쉬도록 외쳐
+          - 바닥을 치고 올라와
+          - 금이 간 벽을 쳐
+          - 눈을 감아도 보여
+          - 피가 끓는 밤
+          - 입술을 깨물고
+          - 이 고통이 나를 깨워
+          - 다시 일어서야 해
+          - 두 주먹을 쥐고
+          - 가면을 벗어 던져
+          - 불 속으로 걸어가
+          - 세상이 등을 돌려도
+          - 내 목소리를 삼키지 마
+          - 심장이 터질 것 같아
+          - 빗속에 서 있어
+          - 갈라진 땅 위에
+          - 흔들려도 쓰러지지 않아
+          - 새벽이 오기 전에
+          - 이빨을 악물고 버텨
+          - 네가 남긴 상처 위에
+          - 등 뒤의 칼자국
+          - 비명이 메아리쳐
+          - 찢어진 하늘 아래
+          - 무릎을 꿇지 않아
+          - 재가 되어도 타오를 거야
+          - 어둠이 삼켜도
+          - 마지막 숨을 내쉬며
+          - 부서진 날개로 날아
+      glass-war:
+        description: >
+          Female-fronted Korean industrial alt-metal. Powerful belting
+          and aggressive female vocals over crushing drop-tuned guitars,
+          industrial percussion, gothic synth textures, and heavier
+          breakdowns. Evanescence meets Linkin Park — soaring vocal
+          beauty against grinding sonic brutality. Darker, weightier,
+          and more atmospheric than Lee Park.
+        prefix: glasswar
+        caption: >-
+          alt rock, industrial metal, nu-metal, korean rock, gothic,
+          heavy distorted guitar, drop-tuned guitar, crushing riffs,
+          industrial percussion, electronic beats, powerful female vocals,
+          belting female vocals, aggressive female vocals, korean vocals,
+          screamed vocals, gothic synth, dark atmospheric pads, heavy
+          breakdown, double kick drums, pounding drums, distorted bass,
+          orchestral hits, dark, intense, heavy, raw, emotional, dramatic
+        dynamic_lyrics: true
+        lyrics_guidance: >-
+          MOOD: Dark, powerful, haunted — volcanic eruptions from a place
+          of deep pain. Gothic intensity with moments of ethereal beauty.
+          THEMES: Betrayal, wrath, grief transformed into fury, haunted
+          strength, rising from ruins, vengeance, dark resolve.
+          IMAGERY: Shattered glass, war paint, ash and smoke, thorns,
+          black water, iron, blood on marble, eclipse.
+          VERSE LINES: haunted, controlled, simmering — like a warning.
+          CHORUS LINES: explosive belting — powerful sustained vowels
+          that a female vocalist can scream or soar on.
+          BRIDGE LINES: fragile, ghostly, whispered.
+        lyrics: |
+          [Intro - industrial percussion, gothic synth drone]
+
+          [Verse 1 - haunted, restrained female vocal, heavy guitar underneath]
+          {THEME_SEED}
+          {LYRICS_VERSE_1_LINE_2}
+          {LYRICS_VERSE_1_LINE_3}
+          {LYRICS_VERSE_1_LINE_4}
+
+          [Pre-Chorus - building, vocals rising]
+          {LYRICS_PRECHORUS_LINE_1}
+          {LYRICS_PRECHORUS_LINE_2}
+
+          [Chorus - explosive belting female vocal, crushing guitars]
+          {LYRICS_CHORUS_LINE_1}
+          {LYRICS_CHORUS_LINE_2}
+          {LYRICS_CHORUS_LINE_3}
+          {LYRICS_CHORUS_LINE_4}
+
+          [Verse 2 - darker, heavier, vocal more aggressive]
+          {THEME_SEED}
+          {LYRICS_VERSE_2_LINE_2}
+          {LYRICS_VERSE_2_LINE_3}
+          {LYRICS_VERSE_2_LINE_4}
+
+          [Chorus - explosive belting female vocal, crushing guitars]
+          {LYRICS_CHORUS_LINE_1}
+          {LYRICS_CHORUS_LINE_2}
+          {LYRICS_CHORUS_LINE_3}
+          {LYRICS_CHORUS_LINE_4}
+
+          [Bridge - whispered, fragile, stripped to synth and voice]
+          {LYRICS_BRIDGE_LINE_1}
+          {LYRICS_BRIDGE_LINE_2}
+
+          [Chorus - final, maximum devastation, screamed]
+          {LYRICS_CHORUS_LINE_1}
+          {LYRICS_CHORUS_LINE_2}
+          {LYRICS_CHORUS_LINE_3}
+          {LYRICS_CHORUS_LINE_4}
+
+          [Outro - industrial noise collapses into silence]
+        bpm_min: 95
+        bpm_max: 135
+        key_scale: C# Minor
+        duration_min: 165
+        duration_max: 240
+        theme_seeds:
+          - 유리가 깨지는 소리
+          - 재 위에 선 여왕
+          - 피 묻은 왕관
+          - 네가 만든 폐허에서
+          - 검은 물이 차오른다
+          - 가시를 삼키고
+          - 거울 속 균열
+          - 재가 된 약속
+          - 전쟁의 첫 번째 숨
+          - 독을 마시고 웃어
+          - 상처가 갑옷이 돼
+          - 불꽃으로 대답해
+          - 눈물이 마른 자리
+          - 철로 된 심장
+          - 그림자가 일어선다
+          - 피 위에 핀 장미
+          - 네 거짓말의 잔해
+          - 부서진 거울 앞에
+          - 이 손으로 무너뜨려
+          - 목을 조이는 침묵
+          - 비명이 노래가 돼
+          - 검은 날개를 펴고
+          - 화염 속에 서 있어
+          - 독이 든 입맞춤
+          - 지옥에서 올라와
+          - 뼈까지 태워버려
+          - 내 분노가 무기야
+          - 칼날 위를 걸어
+          - 잿빛 왕좌에 앉아
+          - 피눈물을 흘려도
+          - 절대 무릎 꿇지 않아
+          - 폭풍의 눈에 서서
+          - 내가 전쟁이다
+          - 무덤에서 일어나
+          - 파도가 삼켜도
+          - 이 어둠을 지배해
+          - 등 뒤에 불을 질러
+          - 가면을 찢어버려
+          - 독화살을 쏘아
+          - 내 피가 증거다
+      shin-oda:
+        description: >
+          Maximum aggression Korean nu-metal. The hardest, screamiest end
+          of the Linkin Park spectrum — Given Up, One Step Closer, A Place
+          for My Head energy. Relentless screamed vocals, rapid-fire rap
+          verses, crushing breakdowns, minimal clean singing. Industrial
+          electronic elements layered over wall-of-sound distorted guitars.
+          Pure catharsis through sonic violence.
+        prefix: shinoda
+        caption: >-
+          nu-metal, alt metal, korean rock, aggressive, heavy,
+          distorted guitar, drop-tuned power chords, crushing breakdown,
+          industrial electronic, glitch, intense male vocals, screamed
+          vocals on chorus, aggressive rap verses, rapid rap delivery,
+          korean vocals, pounding double kick, heavy snare, distorted
+          bass, DJ scratching, turntable, sampling, high energy, raw,
+          intense, dynamic, loud quiet loud
+        dynamic_lyrics: true
+        lyrics_guidance: >-
+          MOOD: Pure rage. Unfiltered. The scream at the top of your lungs
+          when everything inside snaps. No restraint, no subtlety.
+          THEMES: Explosive anger, confrontation, being pushed past the
+          breaking point, violent rejection, self-destruction, total defiance.
+          IMAGERY: Smashing, tearing, burning everything down, fists through
+          walls, throat raw from screaming, blood, concrete, steel.
+          ALL LINES should be short, brutal, and hittable — words that
+          feel good to scream. Maximum aggression on every line.
+          RAP LINES: fastest, most dense, machine-gun delivery.
+          CHORUS LINES: simple, repeated, screamed at full volume.
+        lyrics: |
+          [Intro - feedback wall, industrial noise builds]
+
+          [Verse 1 - rapid-fire aggressive rap over heavy riff]
+          {THEME_SEED}
+          {LYRICS_VERSE_1_LINE_2}
+          {LYRICS_VERSE_1_LINE_3}
+          {LYRICS_VERSE_1_LINE_4}
+
+          [Chorus - screamed, full band, maximum volume]
+          {LYRICS_CHORUS_LINE_1}
+          {LYRICS_CHORUS_LINE_2}
+          {LYRICS_CHORUS_LINE_3}
+          {LYRICS_CHORUS_LINE_4}
+
+          [Rap - machine-gun delivery, electronic beats]
+          {LYRICS_RAP_LINE_1}
+          {LYRICS_RAP_LINE_2}
+          {LYRICS_RAP_LINE_3}
+          {LYRICS_RAP_LINE_4}
+
+          [Breakdown - half-time, crushing, screamed vocals]
+          {LYRICS_BREAKDOWN_LINE_1}
+          {LYRICS_BREAKDOWN_LINE_2}
+
+          [Chorus - screamed, full band, maximum volume]
+          {LYRICS_CHORUS_LINE_1}
+          {LYRICS_CHORUS_LINE_2}
+          {LYRICS_CHORUS_LINE_3}
+          {LYRICS_CHORUS_LINE_4}
+
+          [Rap - even faster, building to breaking point]
+          {LYRICS_RAP2_LINE_1}
+          {LYRICS_RAP2_LINE_2}
+          {LYRICS_RAP2_LINE_3}
+          {LYRICS_RAP2_LINE_4}
+
+          [Chorus - final, throat-shredding, everything maxed]
+          {LYRICS_CHORUS_LINE_1}
+          {LYRICS_CHORUS_LINE_2}
+          {LYRICS_CHORUS_LINE_3}
+          {LYRICS_CHORUS_LINE_4}
+
+          [Outro - scream holds, cuts to silence]
+        bpm_min: 120
+        bpm_max: 150
+        key_scale: C Minor
+        duration_min: 150
+        duration_max: 220
+        theme_seeds:
+          - 닥쳐 내가 말할 때
+          - 한 발자국만 더 와봐
+          - 다 부숴버릴 거야
+          - 이 벽을 때려 부셔
+          - 피가 끓어 넘쳐
+          - 한계를 넘어섰어
+          - 더 이상 참지 않아
+          - 네 목소리가 독이야
+          - 전부 불태워버려
+          - 주먹으로 대답해
+          - 목이 찢어질 때까지
+          - 바닥을 뚫고 나가
+          - 쓰레기를 치워버려
+          - 네 세상을 무너뜨려
+          - 이빨을 드러내
+          - 폭발 직전이야
+          - 머리가 터질 것 같아
+          - 숨통을 끊어버려
+          - 벽에 머리를 박아
+          - 입 다물어 지금 당장
+          - 피투성이로 일어나
+          - 고삐가 풀렸어
+          - 짐승처럼 울부짖어
+          - 뼈가 부서져도
+          - 전부 갈기갈기 찢어
+          - 불구덩이에 뛰어들어
+          - 손톱이 빠져도 파
+          - 이 분노를 삼키지 마
+          - 폭풍을 불러와
+          - 콘크리트를 갈아버려
+          - 피 맛이 나도 웃어
+          - 한 방에 끝내줄게
+          - 사슬을 물어 끊어
+          - 미쳐버리기 전에
+          - 파괴가 답이다
+          - 날것 그대로 뱉어
+          - 목줄을 끊어버려
+          - 벽이 무너질 때까지
+          - 거짓말을 씹어 삼켜
+          - 마지막 비명을 질러
+      bite-back:
+        description: >
+          Gritty female Korean rap-rock with swagger. Heavy trap-influenced
+          808s and distorted bass meet crunchy guitar loops and industrial
+          samples. Dominant rap delivery with punchy sung hooks — Lisa from
+          BLACKPINK's confident flow meets Rage Against the Machine's
+          groove-heavy aggression. Lower BPM for head-nodding swagger
+          rather than speed. Unapologetic, confrontational, stylish.
+        prefix: biteback
+        caption: >-
+          rap rock, korean rap, hip hop, trap, gritty, heavy, female
+          rapper, loud confident rap vocals, aggressive rap delivery,
+          rhythmic flow, korean vocals, punchy shouted hook, distorted
+          808 bass, booming kick drum, trap hi-hats, snare rolls,
+          minimal guitar stabs, electronic production, hard beat,
+          swagger, groove, head-nodding, punchy, raw, attitude
+        dynamic_lyrics: true
+        lyrics_guidance: >-
+          MOOD: Confident, swaggering, dangerous. Not screaming — controlled
+          aggression with a smirk. The calm before she destroys you.
+          THEMES: Dominance, dismissal, flexing, taking what's hers,
+          shutting people down, unbothered power, street attitude.
+          IMAGERY: Heels on throats, crowns, thrones, venom, money,
+          designer armor, walking away from explosions, microphone as weapon.
+          RAP LINES: dense, rhythmic, flowing — confident delivery not
+          machine-gun speed. Swagger over velocity.
+          HOOK LINES: short, catchy, singable — earworm attitude.
+          RAP2/RAP3 LINES: escalating intensity, more bite each verse.
+        lyrics: |
+          [Intro - heavy 808 kick and bass drop]
+
+          [Rap - loud female rap, forward in the mix, hard beat]
+          {THEME_SEED}
+          {LYRICS_RAP_LINE_1}
+          {LYRICS_RAP_LINE_2}
+          {LYRICS_RAP_LINE_3}
+          {LYRICS_RAP_LINE_4}
+
+          [Chorus - shouted female vocals, catchy, aggressive]
+          {LYRICS_CHORUS_LINE_1}
+          {LYRICS_CHORUS_LINE_2}
+          {LYRICS_CHORUS_LINE_3}
+          {LYRICS_CHORUS_LINE_4}
+
+          [Rap - louder female rap, more aggressive delivery]
+          {LYRICS_RAP2_LINE_1}
+          {LYRICS_RAP2_LINE_2}
+          {LYRICS_RAP2_LINE_3}
+          {LYRICS_RAP2_LINE_4}
+
+          [Chorus - shouted female vocals, catchy, aggressive]
+          {LYRICS_CHORUS_LINE_1}
+          {LYRICS_CHORUS_LINE_2}
+          {LYRICS_CHORUS_LINE_3}
+          {LYRICS_CHORUS_LINE_4}
+
+          [Rap - hardest female rap verse, maximum intensity]
+          {LYRICS_RAP3_LINE_1}
+          {LYRICS_RAP3_LINE_2}
+          {LYRICS_RAP3_LINE_3}
+          {LYRICS_RAP3_LINE_4}
+
+          [Chorus - shouted female vocals, full energy, final]
+          {LYRICS_CHORUS_LINE_1}
+          {LYRICS_CHORUS_LINE_2}
+          {LYRICS_CHORUS_LINE_3}
+          {LYRICS_CHORUS_LINE_4}
+
+          [Outro - bass and beat fade out]
+        bpm_min: 90
+        bpm_max: 125
+        key_scale: E Minor
+        duration_min: 165
+        duration_max: 240
+        theme_seeds:
+          - 내 앞에서 꿇어
+          - 왕관은 내 거야
+          - 독을 뱉어줄게
+          - 네 자리에서 비켜
+          - 거울 봐 나밖에 없어
+          - 발밑을 봐 네가 거기
+          - 입 열지 마 내 차례야
+          - 내가 규칙이야
+          - 손대지 마 비싸거든
+          - 뒤를 돌아봐 아무도 없어
+          - 네 시간은 끝났어
+          - 가짜는 내가 골라내
+          - 칼보다 내 혀가 날카로워
+          - 네 말은 소음일 뿐
+          - 무대 위에 나만 서
+          - 그림자도 날 못 따라와
+          - 걸어가면 길이 돼
+          - 네가 준 독 그대로 돌려줄게
+          - 왕좌는 비어있어 내가 앉을게
+          - 겁 없이 걸어가
+          - 뱀은 내가 키운 거야
+          - 박수 안 쳐도 돼 나 혼자 빛나
+          - 미소 뒤에 칼이 있어
+          - 네 한계가 내 시작이야
+          - 마이크가 내 무기
+          - 한마디로 끝내줄게
+          - 눈 마주치면 지는 거야
+          - 내가 걸으면 길이 갈라져
+          - 조용히 해 내가 말할 때
+          - 꽃이 아니야 불꽃이야
+          - 네 세계는 여기까지
+          - 편하게 앉아 구경해
+          - 내 목소리가 전쟁이야
+          - 웃으면서 밟아줄게
+          - 지는 법을 모르거든
+          - 독이 든 꿀을 줄게
+          - 난 멈추지 않아 넌 알잖아
+          - 내 무대에 올라오지 마
+          - 가면 벗겨줄까
+          - 끝은 내가 정해

@@ -11,18 +11,19 @@ export async function initSettings() {
   if (!container) return;
 
   try {
-    const [settings, genres, categories] = await Promise.all([
+    const [settings, genres, categories, installedPacks] = await Promise.all([
       api.getSettings(),
       api.getGenres(),
       api.getCategories(),
+      api.getInstalledPacks().catch(() => ({})),
     ]);
-    renderSettings(container, settings, genres, categories);
+    renderSettings(container, settings, genres, categories, installedPacks);
   } catch (e) {
     container.innerHTML = '<div style="padding:20px;color:var(--fg-dim);font-size:12px">Failed to load settings.</div>';
   }
 }
 
-function renderSettings(container, settings, genres, categories) {
+function renderSettings(container, settings, genres, categories, installedPacks) {
   const map = {};
   settings.forEach(s => { map[s.key] = JSON.parse(s.value); });
 
@@ -126,6 +127,15 @@ function renderSettings(container, settings, genres, categories) {
         </div>
       </div>
     </div>
+    <!-- Genre Packs -->
+    <div class="settings-section">
+      <div class="settings-section-head">Genre Packs</div>
+      <div id="packCards"></div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button class="bar-btn" id="browsePacksBtn" style="flex:1;height:30px;font-size:9px;letter-spacing:1px">BROWSE PACKS</button>
+        <button class="bar-btn" id="installUrlBtn" style="flex:1;height:30px;font-size:9px;letter-spacing:1px">INSTALL FROM URL</button>
+      </div>
+    </div>
     <!-- Categories -->
     <div class="settings-section">
       <div class="settings-section-head">Categories</div>
@@ -169,6 +179,13 @@ function renderSettings(container, settings, genres, categories) {
     </div>`;
 
   container.innerHTML = html;
+
+  // Render installed pack cards
+  renderInstalledPacks(installedPacks);
+
+  // Bind pack buttons
+  $('browsePacksBtn')?.addEventListener('click', () => showBrowsePacksModal());
+  $('installUrlBtn')?.addEventListener('click', () => showInstallUrlModal());
 
   // Bind toggle clicks
   container.querySelectorAll('.settings-section .toggle-track').forEach(toggle => {
@@ -639,6 +656,208 @@ function _showModalError(overlay, msg) {
     el.textContent = msg;
     el.style.display = 'block';
   }
+}
+
+// ---------------------------------------------------------------------------
+// Genre Packs UI
+// ---------------------------------------------------------------------------
+
+const CORE_CATEGORIES = new Set(['lofi', 'citypop', 'synthwave']);
+
+function renderInstalledPacks(installedPacks) {
+  const container = $('packCards');
+  if (!container) return;
+
+  const entries = Object.entries(installedPacks || {});
+  if (entries.length === 0) {
+    container.innerHTML = '<div style="font-size:11px;color:var(--fg-dim);font-family:var(--font-mono);padding:4px 0">No genre packs installed.</div>';
+    return;
+  }
+
+  container.innerHTML = entries.map(([catId, info]) => {
+    const m = info.manifest || {};
+    const name = m.name || catId;
+    const desc = m.description || '';
+    const version = m.version || '';
+    return `
+      <div class="genre-card" data-pack-id="${escapeAttr(catId)}">
+        <div class="genre-header" style="cursor:default">
+          <span class="genre-key">${escapeAttr(name)}</span>
+          <span class="genre-bpm" style="opacity:0.5">${escapeAttr(version)}</span>
+          <button class="bar-btn pack-delete-btn" data-pack-id="${escapeAttr(catId)}" style="margin-left:auto;height:20px;font-size:8px;padding:0 8px;letter-spacing:0.5px">DELETE</button>
+        </div>
+        ${desc ? `<div style="font-size:10px;color:var(--fg-dim);font-family:var(--font-mono);padding:2px 10px 6px">${escapeAttr(desc)}</div>` : ''}
+      </div>`;
+  }).join('');
+
+  container.querySelectorAll('.pack-delete-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      confirmDeletePack(btn.dataset.packId);
+    });
+  });
+}
+
+function confirmDeletePack(categoryId) {
+  if (CORE_CATEGORIES.has(categoryId)) return;
+  const view = $('settingsView');
+  if (!view) return;
+
+  const modal = _createModal(view, 'DELETE PACK', `
+    <div style="font-size:11px;color:var(--fg-dim);font-family:var(--font-mono)">
+      Remove pack <strong>${escapeAttr(categoryId)}</strong> and all its files?
+      Tracks and albums must be deleted first.
+    </div>
+  `, async () => {
+    try {
+      const result = await api.uninstallPack(categoryId);
+      if (result.ok) {
+        _removeModal(modal);
+        initSettings();
+      } else {
+        _showModalError(modal, result.error || 'Failed to delete pack.');
+      }
+    } catch (e) {
+      _showModalError(modal, e.message || 'Failed to delete pack.');
+    }
+  });
+}
+
+function showBrowsePacksModal() {
+  const view = $('settingsView');
+  if (!view) return;
+
+  const modal = _createModal(view, 'BROWSE GENRE PACKS', `
+    <div>
+      <input class="settings-input settings-input-full" id="packSearchInput" placeholder="Search packs..." autocomplete="off">
+      <div id="packBrowseList" style="max-height:200px;overflow-y:auto;margin-top:8px">
+        <div style="font-size:11px;color:var(--fg-dim);font-family:var(--font-mono)">Loading...</div>
+      </div>
+    </div>
+  `, () => {});
+
+  // Hide confirm button — install happens per-item
+  const confirmBtn = modal.querySelector('.settings-modal-confirm');
+  if (confirmBtn) confirmBtn.style.display = 'none';
+
+  loadPackIndex(modal);
+}
+
+async function loadPackIndex(modal) {
+  const list = modal.querySelector('#packBrowseList');
+  const search = modal.querySelector('#packSearchInput');
+
+  try {
+    const packs = await api.browsePacks();
+    if (!packs || packs.length === 0) {
+      list.innerHTML = '<div style="font-size:11px;color:var(--fg-dim);font-family:var(--font-mono)">No packs available.</div>';
+      return;
+    }
+
+    function renderList(filter) {
+      const filtered = filter
+        ? packs.filter(p => (p.name || p.id || '').toLowerCase().includes(filter) || (p.path || '').toLowerCase().includes(filter))
+        : packs;
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div style="font-size:11px;color:var(--fg-dim);font-family:var(--font-mono)">No matches.</div>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(p => {
+        const name = p.name || p.id || 'unknown';
+        const path = p.path || '';
+        const installed = p.installed;
+        return `
+          <div class="genre-card" style="margin-bottom:4px" data-pack-path="${escapeAttr(path)}">
+            <div class="genre-header" style="cursor:default;padding:6px 10px">
+              <span class="genre-key" style="font-size:11px">${escapeAttr(name)}</span>
+              <span class="genre-bpm" style="opacity:0.5;font-size:9px">${escapeAttr(path)}</span>
+              ${installed
+                ? '<span style="margin-left:auto;font-size:8px;color:var(--fg-dim);letter-spacing:0.5px">INSTALLED</span>'
+                : `<button class="bar-btn pack-install-btn" data-pack-path="${escapeAttr(path)}" style="margin-left:auto;height:20px;font-size:8px;padding:0 8px;letter-spacing:0.5px">INSTALL</button>`
+              }
+            </div>
+          </div>`;
+      }).join('');
+
+      list.querySelectorAll('.pack-install-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          installPackFromBrowse(btn, btn.dataset.packPath, modal);
+        });
+      });
+    }
+
+    renderList('');
+
+    let debounce;
+    search?.addEventListener('input', () => {
+      clearTimeout(debounce);
+      debounce = setTimeout(() => renderList((search.value || '').trim().toLowerCase()), 150);
+    });
+  } catch (e) {
+    list.innerHTML = `<div style="font-size:11px;color:var(--accent-red,#c44);font-family:var(--font-mono)">Failed to load pack index.</div>`;
+  }
+}
+
+async function installPackFromBrowse(btn, packPath, modal) {
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin-dots">INSTALLING</span>';
+
+  try {
+    const result = await api.installPack(packPath);
+    if (result.ok) {
+      btn.innerHTML = 'INSTALLED';
+      btn.style.opacity = '0.5';
+      _showModalError(modal, 'Pack installed. Restart the app to load the new genre.');
+    } else {
+      _showModalError(modal, result.error || 'Install failed.');
+      btn.textContent = 'INSTALL';
+      btn.disabled = false;
+    }
+  } catch (e) {
+    _showModalError(modal, e.message || 'Install failed.');
+    btn.textContent = 'INSTALL';
+    btn.disabled = false;
+  }
+}
+
+function showInstallUrlModal() {
+  const view = $('settingsView');
+  if (!view) return;
+
+  const modal = _createModal(view, 'INSTALL FROM URL', `
+    <div>
+      <label class="genre-field-label">ZIP URL</label>
+      <input class="settings-input settings-input-full" id="packUrlInput" placeholder="https://example.com/pack.zip" autocomplete="off">
+    </div>
+  `, async () => {
+    const url = $('packUrlInput')?.value?.trim();
+    if (!url) return;
+
+    const confirmBtn = modal.querySelector('.settings-modal-confirm');
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.innerHTML = '<span class="spin-dots">INSTALLING</span>';
+    }
+
+    try {
+      const result = await api.installPack(null, url);
+      if (result.ok) {
+        _showModalError(modal, 'Pack installed. Restart the app to load the new genre.');
+        if (confirmBtn) { confirmBtn.textContent = 'INSTALLED'; confirmBtn.style.opacity = '0.5'; }
+      } else {
+        _showModalError(modal, result.error || 'Install failed.');
+        if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = 'INSTALL'; }
+      }
+    } catch (e) {
+      _showModalError(modal, e.message || 'Install failed.');
+      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = 'INSTALL'; }
+    }
+  });
+
+  $('packUrlInput')?.focus();
 }
 
 function escapeAttr(str) {

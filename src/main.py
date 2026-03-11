@@ -31,7 +31,7 @@ from fastapi.staticfiles import StaticFiles
 
 from src.config import ALBUM_COVERS_DIR, STATIC_DIR
 from src.database import close_db, init_db
-from src.routes import albums, audio, categories, playlists, radio, settings, tracks, weather
+from src.routes import albums, audio, categories, packs, playlists, radio, settings, tracks, weather
 from src.services.buffer import start_buffer_worker
 
 APP_TITLE = "koibokksu"
@@ -68,6 +68,7 @@ def create_app() -> FastAPI:
     app.include_router(settings.router, prefix="/api")
     app.include_router(audio.router, prefix="/api")
     app.include_router(weather.router, prefix="/api")
+    app.include_router(packs.router, prefix="/api")
 
     app.mount("/album-covers", StaticFiles(directory=str(ALBUM_COVERS_DIR)), name="album-covers")
     app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
