@@ -40,12 +40,36 @@ def init_db():
     db = get_db()
     _create_tables(db)
     _migrate_genres_schema(db)
+    _migrate_genres_archived(db)
     _migrate_albums_schema(db)
     _migrate_tracks_schema(db)
     _seed_if_empty(db)
+    _migrate_settings_defaults(db)
     _clear_stale_tasks(db)
+    _clear_orphaned_tracks(db)
     _sync_album_track_counts(db)
     _migrate_album_covers_to_local(db)
+
+
+def _clear_orphaned_tracks(db: sqlite3.Connection):
+    """Delete track rows whose audio files no longer exist on disk.
+
+    Tracks can be left in an unplayable state when generation is interrupted
+    mid-session — the DB row is created before the file is written, so a
+    hard shutdown leaves rows with missing files.
+    """
+    from src.config import DOWNLOADS_DIR
+
+    logger = logging.getLogger(__name__)
+    rows = db.execute(
+        "SELECT id, filename FROM tracks WHERE status NOT IN ('deleted', 'disliked')"
+    ).fetchall()
+    orphaned = [r["id"] for r in rows if not (DOWNLOADS_DIR / r["filename"]).exists()]
+    if orphaned:
+        placeholders = ",".join("?" * len(orphaned))
+        db.execute(f"DELETE FROM tracks WHERE id IN ({placeholders})", orphaned)
+        db.commit()
+        logger.info("Removed %d orphaned track rows with missing audio files", len(orphaned))
 
 
 def _clear_stale_tasks(db: sqlite3.Connection):
@@ -257,6 +281,15 @@ def _migrate_genres_schema(db: sqlite3.Connection):
         _reseed_genres(db)
 
 
+def _migrate_genres_archived(db: sqlite3.Connection):
+    """Add archived column to genres table if missing."""
+    columns = {r[1] for r in db.execute("PRAGMA table_info(genres)").fetchall()}
+    if "archived" not in columns:
+        db.execute("ALTER TABLE genres ADD COLUMN archived INTEGER NOT NULL DEFAULT 0")
+        db.commit()
+        logging.getLogger(__name__).info("Added column genres.archived")
+
+
 def _migrate_albums_schema(db: sqlite3.Connection):
     """Add new columns to albums table if missing."""
     logger = logging.getLogger(__name__)
@@ -374,6 +407,24 @@ def _insert_genres(db: sqlite3.Connection):
     db.commit()
 
 
+def _migrate_settings_defaults(db: sqlite3.Connection):
+    """Insert any settings keys missing from existing databases.
+
+    Uses INSERT OR IGNORE so existing user values are never overwritten.
+    Add new setting defaults here when new keys are introduced.
+    """
+    new_defaults = [
+        ("ace_step_autostart", False),
+        ("ace_step_path", ""),
+    ]
+    for key, default in new_defaults:
+        db.execute(
+            "INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)",
+            (key, json.dumps(default)),
+        )
+    db.commit()
+
+
 def _seed_settings(db: sqlite3.Connection):
     """Seed settings from generation.yaml if the settings table is empty."""
     count = db.execute("SELECT COUNT(*) FROM settings").fetchone()[0]
@@ -430,9 +481,11 @@ def set_setting(key: str, value):
 
 
 def get_all_genres():
-    """Return all genres ordered by sort_order."""
+    """Return all non-archived genres ordered by sort_order."""
     db = get_db()
-    return db.execute("SELECT * FROM genres ORDER BY sort_order").fetchall()
+    return db.execute(
+        "SELECT * FROM genres WHERE archived = 0 ORDER BY sort_order"
+    ).fetchall()
 
 
 def get_genre(genre_id: str):
@@ -442,9 +495,9 @@ def get_genre(genre_id: str):
 
 
 def get_genres_by_category(category: str):
-    """Return all genres in a category, ordered by sort_order."""
+    """Return all non-archived genres in a category, ordered by sort_order."""
     db = get_db()
     return db.execute(
-        "SELECT * FROM genres WHERE category = ? ORDER BY sort_order",
+        "SELECT * FROM genres WHERE category = ? AND archived = 0 ORDER BY sort_order",
         (category,),
     ).fetchall()

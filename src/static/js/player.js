@@ -648,6 +648,15 @@ export function initPlayer() {
     setWaveformPlaying('playerWaveform', isPlaying);
   });
 
+  on('audio-play-failed', () => {
+    if (!$('playerView').classList.contains('active')) return;
+    isPlaying = false;
+    setPlayIcons(false);
+    $('statusDot').classList.remove('playing');
+    $('powerLed').classList.add('off');
+    setWaveformPlaying('playerWaveform', false);
+  });
+
   on('pl-skip-forward', () => {
     if (playlistTracks.length === 0) return;
     playerTrackIdx = _nextTrackIdx();

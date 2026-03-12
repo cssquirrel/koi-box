@@ -1,4 +1,4 @@
-"""Koibokksu v2 — Lo-Fi Radio Desktop App entry point.
+"""Koi-Box v2 — Lo-Fi Radio Desktop App entry point.
 
 Starts a FastAPI server in a background thread and opens a pywebview window.
 """
@@ -34,7 +34,7 @@ from src.database import close_db, init_db
 from src.routes import albums, audio, categories, packs, playlists, radio, settings, tracks, weather
 from src.services.buffer import start_buffer_worker
 
-APP_TITLE = "koibokksu"
+APP_TITLE = "koi-box"
 HOST = "127.0.0.1"
 PORT = 18920
 
@@ -50,6 +50,8 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """Startup and shutdown lifecycle."""
     init_db()
+    from src.services.packs import migrate_generator_files
+    migrate_generator_files()
     asyncio.create_task(start_buffer_worker())
     logger.info("Server ready on http://%s:%s", HOST, PORT)
     yield
@@ -128,9 +130,17 @@ def main():
         frameless=True,
     )
 
+    from src.database import get_setting
+    from src.services.ace_step_process import start_ace_step, stop_ace_step
+    ace_step_proc = None
+    if get_setting("ace_step_autostart", False):
+        ace_step_proc = start_ace_step(get_setting("ace_step_path", ""))
+
     api = WindowApi(window)
     window.expose(api.minimize, api.close)
-    webview.start()
+    webview.start()  # blocks until window is closed
+
+    stop_ace_step(ace_step_proc)
 
 
 if __name__ == "__main__":

@@ -79,6 +79,7 @@ export async function initRadio() {
   on('volume-change', handleVolumeChange);
   on('add-to-playlist', handleAddToPlaylist);
   on('audio-autoplay-blocked', handleAutoplayBlocked);
+  on('audio-play-failed', handleAutoplayBlocked);
 
   const closeBtn = $('playlistPickerClose');
   if (closeBtn) closeBtn.addEventListener('click', closePlaylistPicker);

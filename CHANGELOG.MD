@@ -5,6 +5,57 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-03-11
+
+### Added
+
+- **ACE-Step auto-start**: Optional setting to launch the ACE-Step 1.5 REST API server automatically at app startup. Requires path to the ACE-Step repo. Configurable via a toggle and path input in Settings under a new "ACE-Step Server" section.
+- **ACE-Step process management**: `src/services/ace_step_process.py` manages the subprocess lifecycle — port collision detection, Windows process-tree kill via `taskkill /F /T`, graceful shutdown on app close.
+
+### Changed
+
+- **Pack deletion preserves favorites**: Uninstalling a genre pack no longer blocks on existing favorited tracks. Non-favorited tracks are deleted; favorited tracks and their albums are retained. Genres with surviving favorites are archived (invisible to radio and generation) rather than deleted outright.
+- **Album covers reassigned on pack removal**: Albums retaining favorited tracks after pack uninstall have their cover image reassigned to a random core-genre image before pack files are deleted, preventing broken cover paths.
+- **Pack generator files isolated**: Pack-installed generator files (pools, profiles, prompts) now write to `config/generators/packs/` instead of the shared core generator directories. Loaders check the core directories first, then fall back to `packs/`.
+- **Pack YAML configs isolated**: Pack category and genre entries are merged into gitignored `config/categories.user.yaml` and `config/genre.user.yaml` sidecars rather than the tracked `categories.yaml` and `genre.yaml`. Both files are merged at load time.
+- **Pack modal language**: Delete confirmation updated to reflect that favorites are preserved. Browse and install modals use correct button labels (CLOSE, INSTALL, REMOVE).
+
+### Fixed
+
+- **ACE-Step not killed on app close**: Moved process start/stop to wrap `webview.start()` in `main()`, the reliable blocking boundary. Previous `atexit`-based approach was bypassed by pywebview's `os._exit()` call.
+- **New settings not seeded on existing databases**: `ace_step_autostart` and `ace_step_path` settings are now inserted via `INSERT OR IGNORE` on startup so existing installs receive the new defaults.
+
+### Migration notes
+
+- On first startup, `migrate_generator_files()` automatically moves any pack generator files from the old flat locations into `config/generators/packs/` and updates `installed_packs.json`.
+- Pack entries in `categories.yaml` and `genre.yaml` are automatically extracted to `categories.user.yaml` and `genre.user.yaml` on first startup.
+- `config/generators/packs/`, `config/categories.user.yaml`, `config/genre.user.yaml`, `config/installed_packs.json`, `config/autopilot_weights.json`, and `album_covers/` subdirectories outside the three core genres are now gitignored.
+
+## [1.5.0] - 2026-03-10
+
+### Added
+
+- **Genre pack system**: Browse, install, and delete genre packs from a GitHub-hosted index or custom URL. Packs include categories, generator profiles, word pools, album covers, and prompt files.
+- **Pack management API**: New `/packs` routes for listing available packs, installing from URL, and removing installed packs.
+- **Pack settings UI**: Animated install progress indicator in the Settings screen with a restart prompt on completion.
+- **Autopilot weight generation on install**: Qwen LLM generates autopilot weights for newly installed genre categories during pack installation.
+- **Core category protection**: Built-in categories (lofi, citypop, synthwave) are protected from deletion via the pack removal flow.
+
+## [1.2.0] - 2026-03-10
+
+### Added
+
+- **Buffer status endpoint**: `GET /radio/buffer-status` exposes per-genre buffer fill counts for autopilot readiness checks.
+- **Autopilot readiness constraint**: Genre switching now skips genres with empty buffers to prevent stalls during autopilot transitions.
+- **Category display names**: Categories support a `display_name` field rendered on genre buttons (e.g., config name `kalt` displays as `K-ALT`).
+- **Shared LLM lock**: `llm_lock` module provides a shared `threading.Lock` for Qwen model access, preventing concurrent bio and lyrics generation from colliding.
+- **`favorited_at` column**: Tracks table gains a `favorited_at` timestamp with migration and backfill for correct favorites sort ordering.
+
+### Changed
+
+- **Buffer worker priority order**: Prebuffer urgent and normal fills are now promoted above current-genre normal refill to prevent autopilot stalls on genre switch.
+- **Bio generation trigger**: Bio generation now fires on the first favorite action (background thread) with a fallback on artist page visit. `get_artist_bio` simplified to a read-only lookup.
+
 ## [1.1.0] - 2026-03-04
 
 ### Added

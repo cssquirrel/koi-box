@@ -1,3 +1,5 @@
+ace_step_autostart: false
+ace_step_path: ""
 api_url: http://127.0.0.1:8001
 api_key: # optional api key here
 delete_disliked_tracks: true

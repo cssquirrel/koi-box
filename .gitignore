@@ -226,3 +226,14 @@ models/
 scripts/
 docs/local_only/
 frontend.cmd
+
+# Koi-Box Genre Stuff
+album_covers/*
+!album_covers/lofi
+!album_covers/citypop
+!album_covers/synthwave
+config/generators/packs/
+config/installed_packs.json
+config/autopilot_weights.json
+config/categories.user.yaml
+config/genre.user.yaml

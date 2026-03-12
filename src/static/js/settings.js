@@ -75,6 +75,22 @@ function renderSettings(container, settings, genres, categories, installedPacks)
         <input class="settings-input settings-input-full" id="settApiKey" type="password" value="${escapeAttr(map.api_key || '')}">
       </div>
     </div>
+    <!-- ACE-Step Server -->
+    <div class="settings-section">
+      <div class="settings-section-head">ACE-Step Server</div>
+      <div class="settings-row">
+        <span class="settings-label">Auto-start server</span>
+        ${renderToggle('settAceStepAutostart', map.ace_step_autostart)}
+      </div>
+      <div style="margin-top:8px">
+        <label class="genre-field-label">SERVER PATH</label>
+        <input class="settings-input settings-input-full" id="settAceStepPath"
+          value="${escapeAttr(map.ace_step_path || '')}"
+          placeholder="C:\\path\\to\\ACE-Step-1.5"
+          ${map.ace_step_autostart ? '' : 'disabled style="opacity:0.4"'}>
+      </div>
+      <div class="settings-note">When enabled, koi-box launches the ACE-Step API server at startup via <code>uv run acestep-api</code>. Requires <code>uv</code> on PATH. Takes effect after restarting koi-box.</div>
+    </div>
     <!-- Track Management -->
     <div class="settings-section">
       <div class="settings-section-head">Track Management</div>
@@ -191,6 +207,14 @@ function renderSettings(container, settings, genres, categories, installedPacks)
   container.querySelectorAll('.settings-section .toggle-track').forEach(toggle => {
     toggle.addEventListener('click', () => {
       toggle.classList.toggle('on');
+      // Keep path input enabled state in sync with autostart toggle
+      if (toggle.id === 'settAceStepAutostart') {
+        const pathInput = $('settAceStepPath');
+        if (pathInput) {
+          pathInput.disabled = !toggle.classList.contains('on');
+          pathInput.style.opacity = toggle.classList.contains('on') ? '' : '0.4';
+        }
+      }
       saveAllSettings(container);
     });
   });
@@ -451,6 +475,8 @@ async function saveGenre(card) {
 
 async function saveAllSettings(container) {
   const saves = [
+    ['ace_step_autostart', isToggleOn('settAceStepAutostart')],
+    ['ace_step_path', gv('settAceStepPath')],
     ['api_url', gv('settApiUrl')],
     ['api_key', gv('settApiKey')],
     ['delete_disliked_tracks', isToggleOn('settDeleteDisliked')],
@@ -607,7 +633,7 @@ async function loadWeatherLocation() {
 // Styled modal helpers (replaces browser prompt/alert)
 // ---------------------------------------------------------------------------
 
-function _createModal(parent, title, bodyHtml, onConfirm) {
+function _createModal(parent, title, bodyHtml, onConfirm, confirmLabel = 'CREATE', cancelLabel = 'CANCEL') {
   // Remove any existing settings modal
   parent.querySelector('.settings-modal-overlay')?.remove();
 
@@ -622,8 +648,8 @@ function _createModal(parent, title, bodyHtml, onConfirm) {
       <div class="settings-modal-body">${bodyHtml}</div>
       <div class="settings-modal-error" style="display:none"></div>
       <div class="settings-modal-actions">
-        <button class="new-playlist-btn settings-modal-cancel">CANCEL</button>
-        <button class="new-playlist-btn new-playlist-create settings-modal-confirm">CREATE</button>
+        <button class="new-playlist-btn settings-modal-cancel">${cancelLabel}</button>
+        <button class="new-playlist-btn new-playlist-create settings-modal-confirm">${confirmLabel}</button>
       </div>
     </div>`;
 
@@ -706,7 +732,7 @@ function confirmDeletePack(categoryId) {
   const modal = _createModal(view, 'DELETE PACK', `
     <div style="font-size:11px;color:var(--fg-dim);font-family:var(--font-mono)">
       Remove pack <strong>${escapeAttr(categoryId)}</strong> and all its files?
-      Tracks and albums must be deleted first.
+      Favorited tracks will be preserved in your library.
     </div>
   `, async () => {
     try {
@@ -720,7 +746,7 @@ function confirmDeletePack(categoryId) {
     } catch (e) {
       _showModalError(modal, e.message || 'Failed to delete pack.');
     }
-  });
+  }, 'REMOVE');
 }
 
 function showBrowsePacksModal() {
@@ -734,7 +760,7 @@ function showBrowsePacksModal() {
         <div style="font-size:11px;color:var(--fg-dim);font-family:var(--font-mono)">Loading...</div>
       </div>
     </div>
-  `, () => {});
+  `, () => {}, '', 'CLOSE');
 
   // Hide confirm button — install happens per-item
   const confirmBtn = modal.querySelector('.settings-modal-confirm');
@@ -855,7 +881,7 @@ function showInstallUrlModal() {
       _showModalError(modal, e.message || 'Install failed.');
       if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = 'INSTALL'; }
     }
-  });
+  }, 'INSTALL');
 
   $('packUrlInput')?.focus();
 }

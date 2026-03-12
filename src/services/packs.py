@@ -19,10 +19,14 @@ import yaml
 from src.config import (
     ALBUM_COVERS_DIR,
     CATEGORIES_CONFIG_PATH,
+    CATEGORIES_USER_CONFIG_PATH,
     CONFIG_DIR,
     GENERATORS_DIR,
+    GENERATORS_PACKS_DIR,
     GENRE_CONFIG_PATH,
+    GENRE_USER_CONFIG_PATH,
     PROJECT_ROOT,
+    _load_or_create_ruamel_yaml,
     _load_ruamel_yaml,
     _save_ruamel_yaml,
 )
@@ -293,7 +297,7 @@ def _copy_pack_files(pack_dir: Path, category_id: str) -> dict:
     if pools_src.exists():
         for pool_dir in pools_src.iterdir():
             if pool_dir.is_dir():
-                dest = GENERATORS_DIR / "pools" / pool_dir.name
+                dest = GENERATORS_PACKS_DIR / "pools" / pool_dir.name
                 dest.mkdir(parents=True, exist_ok=True)
                 for txt in pool_dir.iterdir():
                     if txt.is_file():
@@ -305,7 +309,8 @@ def _copy_pack_files(pack_dir: Path, category_id: str) -> dict:
     if profiles_src.exists():
         for profile in profiles_src.iterdir():
             if profile.is_file():
-                dest = GENERATORS_DIR / "profiles" / profile.name
+                dest = GENERATORS_PACKS_DIR / "profiles" / profile.name
+                dest.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(profile, dest)
                 copied["profiles"].append(str(dest))
 
@@ -314,7 +319,8 @@ def _copy_pack_files(pack_dir: Path, category_id: str) -> dict:
     if prompts_src.exists():
         for prompt in prompts_src.iterdir():
             if prompt.is_file():
-                dest = GENERATORS_DIR / "prompts" / prompt.name
+                dest = GENERATORS_PACKS_DIR / "prompts" / prompt.name
+                dest.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(prompt, dest)
                 copied["prompts"].append(str(dest))
 
@@ -322,7 +328,7 @@ def _copy_pack_files(pack_dir: Path, category_id: str) -> dict:
 
 
 def _merge_category_yaml(pack_dir: Path):
-    """Merge pack's category_info.yaml into the app's categories.yaml."""
+    """Merge pack's category_info.yaml into categories.user.yaml."""
     cat_src = pack_dir / "config" / "category_info.yaml"
     if not cat_src.exists():
         logger.warning("No category_info.yaml in pack")
@@ -331,19 +337,19 @@ def _merge_category_yaml(pack_dir: Path):
     with open(cat_src, encoding="utf-8") as f:
         pack_cats = yaml.safe_load(f) or {}
 
-    ry, data = _load_ruamel_yaml(CATEGORIES_CONFIG_PATH)
+    ry, data = _load_or_create_ruamel_yaml(CATEGORIES_USER_CONFIG_PATH, {"categories": {}})
     cats = data.get("categories", {})
 
     for cat_id, cat_data in pack_cats.items():
         if cat_id not in cats:
             cats[cat_id] = cat_data
-            logger.info("Added category '%s' to categories.yaml", cat_id)
+            logger.info("Added category '%s' to categories.user.yaml", cat_id)
 
-    _save_ruamel_yaml(CATEGORIES_CONFIG_PATH, ry, data)
+    _save_ruamel_yaml(CATEGORIES_USER_CONFIG_PATH, ry, data)
 
 
 def _merge_genre_yaml(pack_dir: Path):
-    """Merge pack's genre_info.yaml into the app's genre.yaml."""
+    """Merge pack's genre_info.yaml into genre.user.yaml."""
     genre_src = pack_dir / "config" / "genre_info.yaml"
     if not genre_src.exists():
         logger.warning("No genre_info.yaml in pack")
@@ -352,22 +358,21 @@ def _merge_genre_yaml(pack_dir: Path):
     with open(genre_src, encoding="utf-8") as f:
         pack_genres = yaml.safe_load(f) or {}
 
-    ry, data = _load_ruamel_yaml(GENRE_CONFIG_PATH)
+    ry, data = _load_or_create_ruamel_yaml(GENRE_USER_CONFIG_PATH, {"genres": {}})
     genres = data.get("genres", {})
 
     for cat_id, cat_data in pack_genres.items():
         if cat_id not in genres:
             genres[cat_id] = cat_data
-            logger.info("Added genre category '%s' to genre.yaml", cat_id)
+            logger.info("Added genre category '%s' to genre.user.yaml", cat_id)
         else:
-            # Merge variants into existing category
             existing_variants = genres[cat_id].get("variants", {})
             new_variants = cat_data.get("variants", {})
             for vid, vdata in new_variants.items():
                 if vid not in existing_variants:
                     existing_variants[vid] = vdata
 
-    _save_ruamel_yaml(GENRE_CONFIG_PATH, ry, data)
+    _save_ruamel_yaml(GENRE_USER_CONFIG_PATH, ry, data)
 
 
 # ---------------------------------------------------------------------------
@@ -501,50 +506,191 @@ def _apply_neutral_weights(variants: list, weights: dict):
 
 
 # ---------------------------------------------------------------------------
+# Migration: move generator files from flat dirs into packs/ subdir
+# ---------------------------------------------------------------------------
+
+
+def migrate_generator_files():
+    """One-time migration: move pack generator files into config/generators/packs/.
+
+    Prior to v1.6, packs installed their generator files directly into the
+    core generators directories (profiles/, prompts/, pools/).  This function
+    relocates them into the gitignored packs/ subdirectory and updates the
+    installed_packs.json manifest so future installs and uninstalls use the
+    correct paths.
+    """
+    installed = _load_installed_packs()
+    if not installed:
+        return
+
+    changed = False
+
+    for category_id, pack_info in installed.items():
+        files = pack_info.get("files", {})
+
+        # --- profiles and prompts (individual tracked file paths) ---
+        for key in ("profiles", "prompts"):
+            new_paths = []
+            for old_str in files.get(key, []):
+                old = Path(old_str)
+                # Skip if already under packs/
+                try:
+                    old.relative_to(GENERATORS_PACKS_DIR)
+                    new_paths.append(old_str)
+                    continue
+                except ValueError:
+                    pass
+                # Compute new path
+                try:
+                    rel = old.relative_to(GENERATORS_DIR)
+                except ValueError:
+                    new_paths.append(old_str)
+                    continue
+                new = GENERATORS_PACKS_DIR / rel
+                if old.exists() and not new.exists():
+                    new.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.move(str(old), str(new))
+                    logger.info("Migrated %s → %s", old, new)
+                    changed = True
+                new_paths.append(str(new))
+            files[key] = new_paths
+
+        # --- pools (directory-level move) ---
+        old_pool_dir = GENERATORS_DIR / "pools" / category_id
+        new_pool_dir = GENERATORS_PACKS_DIR / "pools" / category_id
+        if old_pool_dir.exists() and not new_pool_dir.exists():
+            new_pool_dir.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(old_pool_dir), str(new_pool_dir))
+            logger.info("Migrated pool dir %s → %s", old_pool_dir, new_pool_dir)
+            changed = True
+
+        # Update pool file paths in manifest
+        new_pool_paths = []
+        for old_str in files.get("pools", []):
+            old = Path(old_str)
+            try:
+                old.relative_to(GENERATORS_PACKS_DIR)
+                new_pool_paths.append(old_str)
+                continue
+            except ValueError:
+                pass
+            try:
+                rel = old.relative_to(GENERATORS_DIR)
+            except ValueError:
+                new_pool_paths.append(old_str)
+                continue
+            new_pool_paths.append(str(GENERATORS_PACKS_DIR / rel))
+        files["pools"] = new_pool_paths
+
+        pack_info["files"] = files
+
+    if changed:
+        _save_installed_packs(installed)
+        logger.info("Generator file migration complete")
+
+    # --- YAML migration: move pack category/genre entries to *.user.yaml ---
+    installed_ids = set(installed.keys())
+    if not installed_ids:
+        return
+
+    _migrate_yaml_to_user(
+        CATEGORIES_CONFIG_PATH,
+        CATEGORIES_USER_CONFIG_PATH,
+        "categories",
+        installed_ids,
+    )
+    _migrate_yaml_to_user(
+        GENRE_CONFIG_PATH,
+        GENRE_USER_CONFIG_PATH,
+        "genres",
+        installed_ids,
+    )
+
+
+def _migrate_yaml_to_user(core_path, user_path, root_key, pack_ids):
+    """Move entries matching pack_ids from a core YAML into the user sidecar YAML."""
+    if not core_path.exists():
+        return
+
+    ry, data = _load_ruamel_yaml(core_path)
+    section = data.get(root_key, {})
+    to_move = {k: v for k, v in section.items() if k in pack_ids}
+    if not to_move:
+        return
+
+    ury, udata = _load_or_create_ruamel_yaml(user_path, {root_key: {}})
+    usection = udata.get(root_key, {})
+    for k, v in to_move.items():
+        if k not in usection:
+            usection[k] = v
+        section.pop(k)
+
+    _save_ruamel_yaml(user_path, ury, udata)
+    _save_ruamel_yaml(core_path, ry, data)
+    logger.info("Migrated %d %s entries to %s", len(to_move), root_key, user_path.name)
+
+
+# ---------------------------------------------------------------------------
 # Uninstall pack
 # ---------------------------------------------------------------------------
 
 
 def uninstall_pack(category_id: str):
-    """Remove an installed genre pack and all its files."""
+    """Remove an installed genre pack and all its files.
+
+    Non-favorited tracks are deleted. Favorited tracks are preserved with
+    their genre row archived (invisible to radio/generation but still playable
+    from the favorites screen).
+    """
     if category_id in CORE_CATEGORIES:
         raise RuntimeError(f"Cannot delete core category '{category_id}'")
 
     installed = _load_installed_packs()
     pack_info = installed.get(category_id)
 
-    # Check for tracks/albums (same safety check as categories.py)
     from src.database import get_db
     db = get_db()
     genres = db.execute(
         "SELECT id FROM genres WHERE category = ?", (category_id,)
     ).fetchall()
+    genre_ids = [r["id"] for r in genres]
 
-    for genre_row in genres:
-        gid = genre_row["id"]
-        tracks = db.execute(
+    for gid in genre_ids:
+        # Delete non-favorited tracks for this genre
+        db.execute(
+            "DELETE FROM tracks WHERE genre_id = ? AND status != 'favorited'",
+            (gid,),
+        )
+        # Delete albums that now have zero tracks
+        db.execute(
+            """DELETE FROM albums WHERE genre_id = ?
+               AND (SELECT COUNT(*) FROM tracks WHERE album_id = albums.id) = 0""",
+            (gid,),
+        )
+        # Reassign cover_url on albums that still have favorited tracks
+        _reassign_album_covers(db, gid)
+        # Clean up generation artifacts for this genre
+        db.execute("DELETE FROM generation_tasks WHERE genre_id = ?", (gid,))
+        db.execute("DELETE FROM favorite_artists WHERE genre_id = ?", (gid,))
+        db.execute("DELETE FROM presets WHERE genre_id = ?", (gid,))
+
+    # Archive genres that still have favorited tracks; delete the rest outright
+    for gid in genre_ids:
+        remaining = db.execute(
             "SELECT COUNT(*) FROM tracks WHERE genre_id = ?", (gid,)
         ).fetchone()[0]
-        albums = db.execute(
-            "SELECT COUNT(*) FROM albums WHERE genre_id = ?", (gid,)
-        ).fetchone()[0]
-        if tracks > 0 or albums > 0:
-            raise RuntimeError(
-                f"Cannot delete: genre '{gid}' has {tracks} tracks and {albums} albums. "
-                "Delete or dislike all tracks first."
-            )
+        if remaining > 0:
+            db.execute("UPDATE genres SET archived = 1 WHERE id = ?", (gid,))
+        else:
+            db.execute("DELETE FROM genres WHERE id = ?", (gid,))
 
-    # Remove genres from DB
-    for genre_row in genres:
-        db.execute("DELETE FROM genres WHERE id = ?", (genre_row["id"],))
-        db.execute("DELETE FROM presets WHERE genre_id = ?", (genre_row["id"],))
     db.commit()
 
     # Remove from YAML configs
     from src.config import remove_category_from_yaml
     remove_category_from_yaml(category_id)
 
-    # Clean up installed files
+    # Clean up installed files (album covers deleted here, after covers reassigned above)
     if pack_info and "files" in pack_info:
         _cleanup_pack_files(pack_info["files"], category_id)
 
@@ -563,6 +709,40 @@ def uninstall_pack(category_id: str):
     return {"ok": True}
 
 
+def _reassign_album_covers(db, genre_id: str):
+    """Reassign cover_url on albums in *genre_id* to a random core-genre image.
+
+    Called before pack files are deleted so surviving favorited-track albums
+    don't end up with a broken cover path.
+    """
+    import random
+
+    albums = db.execute(
+        "SELECT id FROM albums WHERE genre_id = ?", (genre_id,)
+    ).fetchall()
+    if not albums:
+        return
+
+    # Collect available images from all core category directories
+    candidates = []
+    for cat in CORE_CATEGORIES:
+        cover_dir = ALBUM_COVERS_DIR / cat
+        if cover_dir.is_dir():
+            candidates.extend(cover_dir.glob("*.jpg"))
+            candidates.extend(cover_dir.glob("*.png"))
+
+    if not candidates:
+        return
+
+    for album_row in albums:
+        pick = random.choice(candidates)
+        local_path = f"{pick.parent.name}/{pick.name}"
+        db.execute(
+            "UPDATE albums SET cover_url = ? WHERE id = ?",
+            (local_path, album_row["id"]),
+        )
+
+
 def _cleanup_pack_files(file_manifest: dict, category_id: str):
     """Remove files installed by a pack."""
     # Remove individual tracked files
@@ -573,11 +753,12 @@ def _cleanup_pack_files(file_manifest: dict, category_id: str):
                 p.unlink()
                 logger.info("Removed: %s", p)
 
-    # Remove pool directory
-    pools_dir = GENERATORS_DIR / "pools" / category_id
-    if pools_dir.exists():
-        shutil.rmtree(pools_dir)
-        logger.info("Removed pool directory: %s", pools_dir)
+    # Remove pool directory — check both packs/ and legacy flat location
+    for pools_base in (GENERATORS_PACKS_DIR / "pools", GENERATORS_DIR / "pools"):
+        pools_dir = pools_base / category_id
+        if pools_dir.exists():
+            shutil.rmtree(pools_dir)
+            logger.info("Removed pool directory: %s", pools_dir)
 
     # Remove album covers directory
     # Find the cover dir name from the manifest files

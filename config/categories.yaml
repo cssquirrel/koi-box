@@ -17,14 +17,14 @@ categories:
       morae_max: 14
       max_chars: 25
       placeholder_lyrics:
-        - ああ夜が来る
-        - 風が呼んでる
-        - 夢の続きを
-        - 光の中へ
-        - このまま二人
-        - 街が眠る頃
-        - 遠い記憶に
-        - 瞳を閉じて
+      - ああ夜が来る
+      - 風が呼んでる
+      - 夢の続きを
+      - 光の中へ
+      - このまま二人
+      - 街が眠る頃
+      - 遠い記憶に
+      - 瞳を閉じて
     bio_config:
       system_prompt_file: citypop_bios.txt
       max_tokens: 200

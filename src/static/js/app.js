@@ -296,7 +296,7 @@ async function init() {
     else window.close();
   });
 
-  console.log('koibokksu v2 initialized');
+  console.log('koi-box v2 initialized');
 }
 
 function escapeHtml(str) {

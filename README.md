@@ -32,7 +32,7 @@ For those with questions, thoughts, and discussion, we encourage you to use our 
 ### Prerequisites
 
 - **Python 3.10+** (Ace Step 1.5 might require a higher Python version itself.)
-- **[ACE-Step 1.5](https://github.com/ace-step/ACE-Step-1.5)** — the AI music generation backend. Koibokksu sends generation requests to its API, which must be running on port 8001 (the default). See the ACE-Step repo for installation and setup.
+- **[ACE-Step 1.5](https://github.com/ace-step/ACE-Step-1.5)** — the AI music generation backend. Koi-Box sends generation requests to its API, which must be running on port 8001 (the default). See the ACE-Step repo for installation and setup.
 
 ### Installation
 

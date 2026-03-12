@@ -70,7 +70,10 @@ export function stop() {
 export function togglePlay() {
   if (!audioEl) return false;
   if (audioEl.paused) {
-    audioEl.play().catch(() => {});
+    audioEl.play().catch((err) => {
+      console.error('audio play() failed:', err);
+      emit('audio-play-failed');
+    });
     return true;
   } else {
     audioEl.pause();
@@ -94,6 +97,7 @@ export function setVolume(vol) {
 export function isPlaying() {
   return audioEl && !audioEl.paused;
 }
+
 
 /** Get current time in seconds. */
 export function getCurrentTime() {
