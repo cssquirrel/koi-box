@@ -41,18 +41,25 @@ MODELS_DIR.mkdir(parents=True, exist_ok=True)
 # ---------------------------------------------------------------------------
 
 
+def _load_merged_yaml(paths, section_key):
+    """Merge a section from multiple YAML files, later files winning on conflict."""
+    result = {}
+    for path in paths:
+        if path.exists():
+            with open(path, encoding="utf-8") as f:
+                data = yaml.safe_load(f) or {}
+            result.update(data.get(section_key, {}))
+    return result
+
+
 def load_categories_config():
     """Load category definitions, merging core and user (pack-installed) YAMLs.
 
     Returns dict: {category_name: {display_name, colors, generator, ...}}.
     """
-    result = {}
-    for path in (CATEGORIES_CONFIG_PATH, CATEGORIES_USER_CONFIG_PATH):
-        if path.exists():
-            with open(path, encoding="utf-8") as f:
-                data = yaml.safe_load(f) or {}
-            result.update(data.get("categories", {}))
-    return result
+    return _load_merged_yaml(
+        (CATEGORIES_CONFIG_PATH, CATEGORIES_USER_CONFIG_PATH), "categories"
+    )
 
 
 def get_category_config(category):
@@ -70,13 +77,9 @@ def load_genre_config():
 
     Returns the nested structure: {category: {variants: {variant_id: data}}}.
     """
-    result = {}
-    for path in (GENRE_CONFIG_PATH, GENRE_USER_CONFIG_PATH):
-        if path.exists():
-            with open(path, encoding="utf-8") as f:
-                data = yaml.safe_load(f) or {}
-            result.update(data.get("genres", {}))
-    return result
+    return _load_merged_yaml(
+        (GENRE_CONFIG_PATH, GENRE_USER_CONFIG_PATH), "genres"
+    )
 
 
 def flatten_genre_config(genres_nested=None):
@@ -204,25 +207,28 @@ def add_category_to_yaml(category_id, category_data):
         _save_ruamel_yaml(GENRE_CONFIG_PATH, gry, gdata)
 
 
-def remove_category_from_yaml(category_id):
-    """Remove a category from categories and genre YAMLs (user and core)."""
-    for path in (CATEGORIES_USER_CONFIG_PATH, CATEGORIES_CONFIG_PATH):
+def _remove_key_from_yaml_files(key, section, paths):
+    """Remove an entry from a section across multiple YAML files."""
+    for path in paths:
         if not path.exists():
             continue
         ry, data = _load_ruamel_yaml(path)
-        cats = data.get("categories", {})
-        if category_id in cats:
-            cats.pop(category_id)
+        section_data = data.get(section, {})
+        if key in section_data:
+            section_data.pop(key)
             _save_ruamel_yaml(path, ry, data)
 
-    for path in (GENRE_USER_CONFIG_PATH, GENRE_CONFIG_PATH):
-        if not path.exists():
-            continue
-        ry, data = _load_ruamel_yaml(path)
-        genres = data.get("genres", {})
-        if category_id in genres:
-            genres.pop(category_id)
-            _save_ruamel_yaml(path, ry, data)
+
+def remove_category_from_yaml(category_id):
+    """Remove a category from categories and genre YAMLs (user and core)."""
+    _remove_key_from_yaml_files(
+        category_id, "categories",
+        (CATEGORIES_USER_CONFIG_PATH, CATEGORIES_CONFIG_PATH),
+    )
+    _remove_key_from_yaml_files(
+        category_id, "genres",
+        (GENRE_USER_CONFIG_PATH, GENRE_CONFIG_PATH),
+    )
 
 
 def update_category_in_yaml(category_id, fields):

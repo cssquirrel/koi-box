@@ -7,6 +7,7 @@ and installing their contents into the app's config directories.
 import io
 import json
 import logging
+import random
 import shutil
 import tempfile
 import time
@@ -715,8 +716,6 @@ def _reassign_album_covers(db, genre_id: str):
     Called before pack files are deleted so surviving favorited-track albums
     don't end up with a broken cover path.
     """
-    import random
-
     albums = db.execute(
         "SELECT id FROM albums WHERE genre_id = ?", (genre_id,)
     ).fetchall()
