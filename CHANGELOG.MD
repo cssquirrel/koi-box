@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-03-14
+
+### Added
+
+- **Auto-update system**: The app now checks GitHub for new releases on startup (with a 6-hour cooldown to avoid redundant requests). If an update is available, a pulsing UPDATE badge appears in the bottom toolbar. Clicking it opens a modal showing the new version and release notes. Users can install the update with one click (`git pull`), then restart to apply. Pre-flight checks warn if git is unavailable or local files have been modified.
+- **What's New modal**: After restarting with a new version, a one-time "What's New" panel displays the release notes from the update that was just installed.
+- **Version detection from changelog**: The app reads its own version by parsing the first `## [X.Y.Z]` header from `CHANGELOG.MD` — no separate version file to maintain.
+
+### Fixed
+
+- **Non-City Pop lyrics generation failing silently**: The lyrics user prompt was hardcoded to say "Generate Japanese City Pop lyrics" and "3-7 Japanese characters" for all categories, contradicting the system prompt for non-Japanese categories. This caused the 3B LLM to produce garbled output in some circumstances, fail all retries, and fall back to instrumental with no lyrics. The user prompt is now language-neutral — the system prompt handles language and style specificity.
+- **Missing section hints for rap-heavy genres**: `_SECTION_HINTS` only covered VERSE, CHORUS, PRECHORUS, and BRIDGE. Added RAP, RAP2, RAP3, and BREAKDOWN so genres with them get creative direction hints in the LLM prompt.
+
+### Changed
+
+- **Configuration docs updated**: `docs/configuration.md` now covers user sidecar files, the `packs/` generator directory, `bio_config` field, pool resolution order (core → packs → shared), ACE-Step autostart settings, and pack developer guidance.
+
 ## [1.6.0] - 2026-03-11
 
 ### Added

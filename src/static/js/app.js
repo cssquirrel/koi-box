@@ -8,6 +8,7 @@ import { initPlaylistPicker } from './playlist-picker.js';
 import { initSettings } from './settings.js';
 import { initWaveform } from './screen.js';
 import { initWeather } from './weather.js';
+import { checkForUpdate, showWhatsNew } from './updater.js';
 import { initTheme } from './theme.js';
 import * as api from './api.js';
 import { $, on } from './utils.js';
@@ -295,6 +296,10 @@ async function init() {
     if (window.pywebview) window.pywebview.api.close();
     else window.close();
   });
+
+  // Update check (non-blocking)
+  showWhatsNew();
+  checkForUpdate();
 
   console.log('koi-box v2 initialized');
 }

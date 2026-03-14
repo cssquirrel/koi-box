@@ -3092,6 +3092,72 @@ body {
   background: linear-gradient(180deg, #f08555, #f06020);
 }
 
+/* ── Update badge ── */
+.update-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 18px;
+  padding: 0 7px;
+  margin-left: 4px;
+  border-radius: 9px;
+  border: 1px solid var(--accent);
+  background: var(--accent-glow);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.update-badge:hover {
+  background: rgba(255, 91, 26, 0.2);
+}
+.update-badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: breathe 2s ease infinite;
+}
+
+/* ── Update modal content ── */
+.update-modal-content {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--fg);
+}
+.update-modal-versions {
+  margin-bottom: 10px;
+  font-size: 10px;
+}
+.update-modal-dim {
+  opacity: 0.55;
+}
+.update-modal-arrow {
+  margin: 0 6px;
+  opacity: 0.4;
+}
+.update-modal-notes {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 10px;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  font-size: 9px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.update-modal-success {
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
 /* ── Radio-hide (buttons hidden in radio mode) ── */
 #radioView .radio-hide {
   display: none;

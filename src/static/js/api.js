@@ -239,6 +239,19 @@ export function getAutopilotWeights() {
   return request('GET', '/autopilot/weights');
 }
 
+// -- Update --
+
+export function checkUpdate() {
+  return request('GET', '/update/check');
+}
+
+export function applyUpdate(releaseNotes = '', releaseVersion = '') {
+  return request('POST', '/update/apply', {
+    release_notes: releaseNotes,
+    release_version: releaseVersion,
+  });
+}
+
 // -- Audio --
 
 export function audioUrl(filename) {

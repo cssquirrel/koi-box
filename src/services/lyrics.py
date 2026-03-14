@@ -259,10 +259,14 @@ _SECTION_HINTS = {
     "PRECHORUS_1": "building tension, anticipation",
     "PRECHORUS_2": "building tension, varied from prechorus 1",
     "BRIDGE": "intimate, vulnerable, contrast",
+    "RAP": "dense, rhythmic, rapid-fire delivery",
+    "RAP2": "escalating intensity, building on first rap",
+    "RAP3": "peak intensity, hardest verse",
+    "BREAKDOWN": "stripped back, raw, aggressive punctuation",
 }
 
 
-def _build_slot_instructions(slots: list[str]) -> str:
+def _build_slot_instructions(slots: list[str], max_chars: int = _DEFAULT_MAX_CHARS) -> str:
     """Build human-readable slot fill instructions from slot names."""
     sections: dict[str, list[str]] = {}
     for slot in slots:
@@ -270,7 +274,7 @@ def _build_slot_instructions(slots: list[str]) -> str:
         section = parts[0] if len(parts) == 2 else slot.replace("LYRICS_", "")
         sections.setdefault(section, []).append(slot)
 
-    lines = ["Fill these slots (each line should be 3-7 Japanese characters):"]
+    lines = [f"Fill these slots (each line should be concise, under {max_chars} characters):"]
     for section, section_slots in sections.items():
         first = section_slots[0]
         last = section_slots[-1]
@@ -281,20 +285,21 @@ def _build_slot_instructions(slots: list[str]) -> str:
     return "\n".join(lines)
 
 
-def _build_user_prompt(genre_row, slots: list[str], theme_seed: str | None) -> str:
+def _build_user_prompt(genre_row, slots: list[str], theme_seed: str | None,
+                       max_chars: int = _DEFAULT_MAX_CHARS) -> str:
     """Build the complete user prompt from genre data and detected slots."""
     variant_id = genre_row["id"]
     guidance = genre_row["lyrics_guidance"] if genre_row["lyrics_guidance"] else ""
     caption = genre_row["caption"]
 
     parts = [
-        f"Generate Japanese City Pop lyrics for the {variant_id} template.",
+        f"Generate lyrics for the {variant_id} template.",
         f"STYLE TAGS: {caption}",
     ]
     if guidance:
         parts.append(guidance)
 
-    parts.append(_build_slot_instructions(slots))
+    parts.append(_build_slot_instructions(slots, max_chars=max_chars))
 
     if theme_seed:
         parts.append(
@@ -311,9 +316,10 @@ def _build_user_prompt(genre_row, slots: list[str], theme_seed: str | None) -> s
 
 
 def _generate_raw(llm, genre_row, slots, theme_seed=None, temperature=0.9,
-                  max_tokens=512, system_prompt=None) -> str:
+                  max_tokens=512, system_prompt=None,
+                  max_chars=_DEFAULT_MAX_CHARS) -> str:
     """Run the LLM and return raw text output."""
-    user_msg = _build_user_prompt(genre_row, slots, theme_seed)
+    user_msg = _build_user_prompt(genre_row, slots, theme_seed, max_chars=max_chars)
     prompt = system_prompt or _FALLBACK_SYSTEM_PROMPT
     messages = [
         {"role": "system", "content": prompt},
@@ -532,7 +538,8 @@ def _generate_with_retries(llm, genre_row, slots, template_lyrics,
         logger.info("Lyrics attempt %d/%d (temp=%.2f)", attempt + 1, max_retries, temp)
 
         raw = _generate_raw(llm, genre_row, slots, theme_seed=theme_seed,
-                            temperature=temp, system_prompt=system_prompt)
+                            temperature=temp, system_prompt=system_prompt,
+                            max_chars=max_chars)
         logger.debug("Raw LLM output:\n%s", raw)
 
         lyrics = _parse_lyrics(raw, expected_set)

@@ -633,7 +633,7 @@ async function loadWeatherLocation() {
 // Styled modal helpers (replaces browser prompt/alert)
 // ---------------------------------------------------------------------------
 
-function _createModal(parent, title, bodyHtml, onConfirm, confirmLabel = 'CREATE', cancelLabel = 'CANCEL') {
+export function _createModal(parent, title, bodyHtml, onConfirm, confirmLabel = 'CREATE', cancelLabel = 'CANCEL') {
   // Remove any existing settings modal
   parent.querySelector('.settings-modal-overlay')?.remove();
 
@@ -672,11 +672,11 @@ function _createModal(parent, title, bodyHtml, onConfirm, confirmLabel = 'CREATE
   return overlay;
 }
 
-function _removeModal(overlay) {
+export function _removeModal(overlay) {
   overlay?.remove();
 }
 
-function _showModalError(overlay, msg) {
+export function _showModalError(overlay, msg) {
   const el = overlay.querySelector('.settings-modal-error');
   if (el) {
     el.textContent = msg;
